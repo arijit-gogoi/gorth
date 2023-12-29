@@ -1,9 +1,9 @@
 package word
 
-type TokenType string
+type WordType string
 
 type Token struct {
-	Type    TokenType
+	Type    WordType
 	Literal string
 }
 
