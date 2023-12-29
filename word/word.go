@@ -2,7 +2,7 @@ package word
 
 type WordType string
 
-type Token struct {
+type Word struct {
 	Type    WordType
 	Literal string
 }
