@@ -8,6 +8,7 @@ type Word struct {
 }
 
 const (
-	PUSH = "PUSH"
-	ADD  = "ADD"
+	PUSH    = "PUSH"
+	ADD     = "ADD"
+	ILLEGAL = "ILLEGAL"
 )
