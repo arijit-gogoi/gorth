@@ -1,7 +1,6 @@
 package lexer
 
 import (
-	"github.com/Jorghy-Del/gorth/lexer"
 	"github.com/Jorghy-Del/gorth/word"
 	"testing"
 )
@@ -17,7 +16,7 @@ func TestNextToken(t *testing.T) {
 		{word.PUSH, "10"},
 		{word.ADD, "+"},
 	}
-	l := lexer.New(input)
+	l := New(input)
 	for i, tt := range tests {
 		tok := l.NextToken()
 		if tok.Type != tt.expectedType {
