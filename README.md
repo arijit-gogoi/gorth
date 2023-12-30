@@ -1,1 +1,1 @@
-An implementatin of forth in go.
+An implementation of forth in go.
