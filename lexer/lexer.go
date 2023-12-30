@@ -35,6 +35,8 @@ func (l *Lexer) NextToken() word.Word {
 	switch l.ch {
 	case '+':
 		tok = newToken(word.ADD, l.ch)
+	case '.':
+		tok = newToken(word.POP, l.ch)
 	default:
 		if isDigit(l.ch) {
 			tok.Type = word.PUSH
