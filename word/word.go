@@ -9,6 +9,8 @@ type Word struct {
 
 const (
 	PUSH    = "PUSH"
+	POP     = "POP"
 	ADD     = "ADD"
+	INT     = "INT"
 	ILLEGAL = "ILLEGAL"
 )
