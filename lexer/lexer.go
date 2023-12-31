@@ -27,31 +27,66 @@ func (l *Lexer) readChar() {
 	l.readPosition += 1
 }
 
+func (l *Lexer) peekChar() byte {
+	if l.readPosition >= len(l.input) {
+		return 0
+	} else {
+		return l.input[l.readPosition]
+	}
+}
+
 func (l *Lexer) NextToken() word.Word {
 	var tok word.Word
 
 	l.skipWhitespace()
 
 	switch l.ch {
-	case '+':
-		tok = newToken(word.ADD, l.ch)
-	case '.':
-		tok = newToken(word.POP, l.ch)
+	case '.', '+', '*', '/':
+		w := string(l.ch)
+		tok = newToken(word.GetWordType(w), w)
+	case '-':
+		p := l.peekChar()
+		if isDigit(p) {
+			tok.Type = word.PUSH
+			l.readChar()
+			tok.Literal = "-" + l.readNumber()
+			return tok
+		} else {
+			w := string(l.ch)
+			tok = newToken(word.GetWordType(w), w)
+		}
+	case 'c', 'd', 'e','o','s':
+		w := l.readWord()
+		tok = newToken(word.GetWordType(w), w)
+	case '0':
+		tok = newToken(word.EOF, string(l.ch))
 	default:
 		if isDigit(l.ch) {
 			tok.Type = word.PUSH
 			tok.Literal = l.readNumber()
 			return tok
 		} else {
-			tok = newToken(word.ILLEGAL, l.ch)
+			tok = newToken(word.ILLEGAL, string(l.ch))
 		}
 	}
 	l.readChar()
 	return tok
 }
 
-func newToken(wordType word.WordType, ch byte) word.Word {
-	return word.Word{Type: wordType, Literal: string(ch)}
+func newToken(wT word.WordType, literal string) word.Word {
+	return word.Word{Type: wT, Literal: literal}
+}
+
+func (l *Lexer) readWord() string {
+	start := l.position
+	for isLetter(l.ch) {
+		l.readChar()
+	}
+	return l.input[start:l.position]
+}
+
+func isLetter(ch byte) bool {
+	return 'a' <= ch && ch <= 'z'
 }
 
 func (l *Lexer) readNumber() string {
