@@ -17,3 +17,11 @@ func (s *Stack) Pop() (top int) {
 func (s *Stack) Len() int {
 	return len(s.Stk)
 }
+
+func (s *Stack) Top() int {
+	return s.Stk[len(s.Stk)-1]
+}
+
+func (s *Stack) Second() int {
+	return s.Stk[len(s.Stk)-2]
+}
