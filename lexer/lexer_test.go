@@ -8,7 +8,7 @@ import (
 func TestNextToken(t *testing.T) {
 	input := `5 -10 + 1 . 1 - -1 * -6 / dup drop 2 swap over spin . . . 97 emit`
 
-	tests := []struct {
+	output := []struct {
 		expectedType    word.WordType
 		expectedLiteral string
 	}{
@@ -37,14 +37,16 @@ func TestNextToken(t *testing.T) {
 	}
 
 	l := New(input)
-	for i, tt := range tests {
+	for i, tt := range output {
 		tok := l.NextToken()
-		if tok.Type != tt.expectedType {
-			t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q", i, tt.expectedType, tok.Type)
-		}
-		if tok.Literal != tt.expectedLiteral {
-			t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q", i, tt.expectedLiteral, tok.Literal)
-		}
+		t.Run("single", func(t *testing.T) {
+			if tok.Type != tt.expectedType {
+				t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q", i, tt.expectedType, tok.Type)
+			}
+			if tok.Literal != tt.expectedLiteral {
+				t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q", i, tt.expectedLiteral, tok.Literal)
+			}
+		})
 	}
 }
 
@@ -87,6 +89,32 @@ func TestNextTokenTable(t *testing.T) {
 				{word.GT, ">"},
 				{word.PUSH, "-1"},
 				{word.EQ, "="},
+			},
+		},
+		{
+			name:  "and",
+			input: `10 12 and`,
+			output: []expected{
+				{word.PUSH, "10"},
+				{word.PUSH, "12"},
+				{word.AND, "and"},
+			},
+		},
+		{
+			name:  "test or with two numbers",
+			input: `10 12 or`,
+			output: []expected{
+				{word.PUSH, "10"},
+				{word.PUSH, "12"},
+				{word.OR, "or"},
+			},
+		},
+		{
+			name:  "invert: bitwise not",
+			input: `1 invert`,
+			output: []expected{
+				{word.PUSH, "1"},
+				{word.INVERT, "invert"},
 			},
 		},
 	}

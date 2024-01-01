@@ -32,7 +32,7 @@ const (
 	NOTEQ
 	AND
 	OR
-	NOT
+	INVERT
 
 	// extra
 	INT
@@ -41,25 +41,25 @@ const (
 )
 
 var table = map[string]WordType{
-	"+":    ADD,
-	"*":    MULTIPLY,
-	"-":    SUBTRACT,
-	"/":    DIVIDE,
-	".":    POP,
-	"dup":  DUP,
-	"drop": DROP,
-	"swap": SWAP,
-	"over": OVER,
-	"spin": SPIN,
-	"emit": EMIT,
-	"cr":   CR,
-	"=":    EQ,
-	"<":	LT,
-	">":	GT,
-	"!=": 	NOTEQ,
-	"and":  AND,
-	"or":   OR,
-	"not":  NOT,
+	"+":      ADD,
+	"*":      MULTIPLY,
+	"-":      SUBTRACT,
+	"/":      DIVIDE,
+	".":      POP,
+	"dup":    DUP,
+	"drop":   DROP,
+	"swap":   SWAP,
+	"over":   OVER,
+	"spin":   SPIN,
+	"emit":   EMIT,
+	"cr":     CR,
+	"=":      EQ,
+	"<":      LT,
+	">":      GT,
+	"!=":     NOTEQ,
+	"and":    AND,
+	"or":     OR,
+	"invert": INVERT,
 }
 
 func GetWordType(s string) WordType {

@@ -55,7 +55,7 @@ func (l *Lexer) NextToken() word.Word {
 			w := string(l.ch)
 			tok = newToken(word.GetWordType(w), w)
 		}
-	case 'c', 'd', 'e', 'o', 's':
+	case 'c', 'd', 'e', 'o', 's', 'a', 'i':
 		w := l.readWord()
 		tok = newToken(word.GetWordType(w), w)
 	case '0':

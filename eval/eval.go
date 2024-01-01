@@ -37,22 +37,20 @@ func eval(words []word.Word) []int {
 			} else {
 				s.Push(0)
 			}
+		case word.AND:
+			s.Push(s.Pop() & s.Pop())
+		case word.OR:
+			s.Push(s.Pop() | s.Pop())
+		case word.INVERT:
+			s.Push(^s.Pop())
 		case word.ADD:
-			v1 := s.Pop()
-			v2 := s.Pop()
-			s.Push(v1 + v2)
+			s.Push(s.Pop() + s.Pop())
 		case word.SUBTRACT:
-			v1 := s.Pop()
-			v2 := s.Pop()
-			s.Push(v1 - v2)
+			s.Push(s.Pop() - s.Pop())
 		case word.MULTIPLY:
-			v1 := s.Pop()
-			v2 := s.Pop()
-			s.Push(v1 * v2)
+			s.Push(s.Pop() * s.Pop())
 		case word.DIVIDE:
-			v1 := s.Pop()
-			v2 := s.Pop()
-			s.Push(v1 / v2)
+			s.Push(s.Pop() / s.Pop())
 		case word.POP:
 			top := s.Pop()
 			fmt.Println(top)

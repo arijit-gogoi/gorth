@@ -8,7 +8,8 @@ import (
 )
 
 func TestEval(t *testing.T) {
-	input := `5 -10 + 1 . 1 - -1 * -6 / dup drop 2 swap over spin . . . 97 emit`
+	input := `5 -10 + 1 . 1 - -1 * -6 / dup drop 2 swap over spin . . . 97 emit
+1 2 < -2 > -1 =`
 	type expected struct {
 		expectedType    word.WordType
 		expectedLiteral string
@@ -37,6 +38,13 @@ func TestEval(t *testing.T) {
 		{word.POP, ".", []int{}},
 		{word.PUSH, "97", []int{97}},
 		{word.EMIT, "emit", []int{}},
+		{word.PUSH, "1", []int{1}},
+		{word.PUSH, "2", []int{1, 2}},
+		{word.LT, "<", []int{-1}},
+		{word.PUSH, "-2", []int{-1, -2}},
+		{word.GT, ">", []int{-1}},
+		{word.PUSH, "-1", []int{-1, -1}},
+		{word.EQ, "=", []int{-1}},
 	}
 	l := lexer.New(input)
 	words := []word.Word{}
@@ -130,6 +138,35 @@ func TestEvalTable(t *testing.T) {
 				{word.GT, ">", []int{-1}},
 				{word.PUSH, "-1", []int{-1, -1}},
 				{word.EQ, "=", []int{-1}},
+			},
+		},
+		{
+			name:  "and",
+			input: `10 12 and`,
+			output: []expected{
+				{word.PUSH, "10", []int{10}},
+				{word.PUSH, "12", []int{10, 12}},
+				{word.AND, "and", []int{8}},
+			},
+		},
+		{
+			name:  "test or with two numbers",
+			input: `10 12 or`,
+			output: []expected{
+				{word.PUSH, "10", []int{10}},
+				{word.PUSH, "12", []int{10, 12}},
+				{word.OR, "or", []int{14}},
+			},
+		},
+		{
+			name:  "invert: bitwise not",
+			input: `1 invert -1 * invert`,
+			output: []expected{
+				{word.PUSH, "1", []int{1}},
+				{word.INVERT, "invert", []int{-2}},
+				{word.PUSH, "-1", []int{-2, -1}},
+				{word.MULTIPLY, "*", []int{2}},
+				{word.INVERT, "invert", []int{-3}},
 			},
 		},
 	}
