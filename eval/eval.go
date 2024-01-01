@@ -13,6 +13,30 @@ func eval(words []word.Word) []int {
 	var s stack.Stack
 	for _, w := range words {
 		switch w.Type {
+		case word.EQ:
+			v1 := s.Pop()
+			v2 := s.Pop()
+			if v2 == v1 {
+				s.Push(-1)
+			} else {
+				s.Push(0)
+			}
+		case word.LT:
+			v1 := s.Pop()
+			v2 := s.Pop()
+			if v2 < v1 {
+				s.Push(-1)
+			} else {
+				s.Push(0)
+			}
+		case word.GT:
+			v1 := s.Pop()
+			v2 := s.Pop()
+			if v2 > v1 {
+				s.Push(-1)
+			} else {
+				s.Push(0)
+			}
 		case word.ADD:
 			v1 := s.Pop()
 			v2 := s.Pop()

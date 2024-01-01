@@ -44,17 +44,19 @@ func TestEval(t *testing.T) {
 		tok := l.NextToken()
 		words = append(words, tok)
 		got := eval(words)
-		if tok.Type != tt.expectedType {
-			t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q", i, tt.expectedType, tok.Type)
-		}
-		if tok.Literal != tt.expectedLiteral {
-			t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q", i, tt.expectedLiteral, tok.Literal)
-		}
-		for j := range got {
-			if got[j] != tt.expectedStk[j] {
-				t.Fatalf("tests[%d] - wrong evaluation. expected=%q, got=%q", i, tt.expectedLiteral, tok.Literal)
+		t.Run("single", func(t *testing.T) {
+			if tok.Type != tt.expectedType {
+				t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q", i, tt.expectedType, tok.Type)
 			}
-		}
+			if tok.Literal != tt.expectedLiteral {
+				t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q", i, tt.expectedLiteral, tok.Literal)
+			}
+			for j := range got {
+				if got[j] != tt.expectedStk[j] {
+					t.Fatalf("tests[%d] - wrong evaluation. expected=%q, got=%q", i, tt.expectedLiteral, tok.Literal)
+				}
+			}
+		})
 	}
 }
 
@@ -65,33 +67,31 @@ func TestEvalTable(t *testing.T) {
 		expectedStk     []int
 	}
 	type test struct {
-		name 	string
-		input  	string
-		output 	[]expected
+		name   string
+		input  string
+		output []expected
 	}
 	tests := []test{
 		{
-			name: "add one and minus one",
+			name:  "add one and minus one",
 			input: `1 -1 +`,
-			output:
-			[]expected{
+			output: []expected{
 				{word.PUSH, "1", []int{1}},
 				{word.PUSH, "-1", []int{1, -1}},
 				{word.ADD, "+", []int{0}},
 			},
 		},
 		{
-			name: "subtract two from one",
+			name:  "subtract two from one",
 			input: `2 1 -`,
-			output:
-			[]expected{
+			output: []expected{
 				{word.PUSH, "2", []int{2}},
 				{word.PUSH, "1", []int{2, 1}},
 				{word.SUBTRACT, "-", []int{-1}},
 			},
 		},
 		{
-			name: "dup a number",
+			name:  "dup a number",
 			input: `420 dup`,
 			output: []expected{
 				{word.PUSH, "420", []int{420}},
@@ -99,7 +99,7 @@ func TestEvalTable(t *testing.T) {
 			},
 		},
 		{
-			name: "cr cr cr",
+			name:  "cr cr cr",
 			input: `cr cr cr`,
 			output: []expected{
 				{word.CR, "cr", []int{}},
@@ -108,7 +108,7 @@ func TestEvalTable(t *testing.T) {
 			},
 		},
 		{
-			name: "1 2 3 cr cr cr",
+			name:  "1 2 3 cr cr cr",
 			input: `1 2 3 cr cr cr`,
 			output: []expected{
 				{word.PUSH, "1", []int{1}},
@@ -117,6 +117,19 @@ func TestEvalTable(t *testing.T) {
 				{word.CR, "cr", []int{1, 2, 3}},
 				{word.CR, "cr", []int{1, 2, 3}},
 				{word.CR, "cr", []int{1, 2, 3}},
+			},
+		},
+		{
+			name:  "Single character logical operations",
+			input: `1 2 < -2 > -1 =`,
+			output: []expected{
+				{word.PUSH, "1", []int{1}},
+				{word.PUSH, "2", []int{1, 2}},
+				{word.LT, "<", []int{-1}},
+				{word.PUSH, "-2", []int{-1, -2}},
+				{word.GT, ">", []int{-1}},
+				{word.PUSH, "-1", []int{-1, -1}},
+				{word.EQ, "=", []int{-1}},
 			},
 		},
 	}

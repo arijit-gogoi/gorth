@@ -54,13 +54,13 @@ func TestNextTokenTable(t *testing.T) {
 		expectedLiteral string
 	}
 	type test struct {
-		name string
-		input string
+		name   string
+		input  string
 		output []expected
 	}
 	tests := []test{
 		{
-			name: "dup a number",
+			name:  "dup a number",
 			input: `420 dup`,
 			output: []expected{
 				{word.PUSH, "420"},
@@ -68,12 +68,25 @@ func TestNextTokenTable(t *testing.T) {
 			},
 		},
 		{
-			name: "cr cr cr",
+			name:  "cr cr cr",
 			input: `cr cr cr`,
 			output: []expected{
 				{word.CR, "cr"},
 				{word.CR, "cr"},
 				{word.CR, "cr"},
+			},
+		},
+		{
+			name:  "LT and GT",
+			input: `1 2 < -2 > -1 =`,
+			output: []expected{
+				{word.PUSH, "1"},
+				{word.PUSH, "2"},
+				{word.LT, "<"},
+				{word.PUSH, "-2"},
+				{word.GT, ">"},
+				{word.PUSH, "-1"},
+				{word.EQ, "="},
 			},
 		},
 	}
