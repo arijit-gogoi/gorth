@@ -58,8 +58,8 @@ func (l *Lexer) NextToken() word.Word {
 	case 'c', 'd', 'e', 'o', 's', 'a', 'i':
 		w := l.readWord()
 		tok = newToken(word.GetWordType(w), w)
-	case '0':
-		tok = newToken(word.EOF, string(l.ch))
+	case 0x00:
+		tok = newToken(word.EOF, "0x00")
 	default:
 		if isDigit(l.ch) {
 			tok.Type = word.PUSH
@@ -102,7 +102,7 @@ func isDigit(ch byte) bool {
 }
 
 func (l *Lexer) skipWhitespace() {
-	for l.ch == ' ' || l.ch == '\n' || l.ch == '\t' || l.ch == 'r' {
+	for l.ch == ' ' || l.ch == '\n' || l.ch == '\t' || l.ch == '\r' || l.ch == 0xd || l.ch == 0xa {
 		l.readChar()
 	}
 }

@@ -9,14 +9,12 @@ import (
 	"github.com/Jorghy-Del/gorth/word"
 )
 
-func eval(words []word.Word) []int {
+func Eval(words []word.Word) []int {
 	var s stack.Stack
 	for _, w := range words {
 		switch w.Type {
 		case word.EQ:
-			v1 := s.Pop()
-			v2 := s.Pop()
-			if v2 == v1 {
+			if s.Pop() == s.Pop() {
 				s.Push(-1)
 			} else {
 				s.Push(0)
@@ -55,8 +53,7 @@ func eval(words []word.Word) []int {
 			top := s.Pop()
 			fmt.Println(top)
 		case word.DUP:
-			top := s.Top()
-			s.Push(top)
+			s.Push(s.Top())
 		case word.DROP:
 			s.Pop()
 		case word.SWAP:
@@ -68,9 +65,7 @@ func eval(words []word.Word) []int {
 			sec := s.Second()
 			s.Push(sec)
 		case word.SPIN:
-			n1 := s.Pop()
-			n2 := s.Pop()
-			n3 := s.Pop()
+			n1, n2, n3 := s.Pop(), s.Pop(), s.Pop()
 			s.Push(n2)
 			s.Push(n3)
 			s.Push(n1)
@@ -79,6 +74,10 @@ func eval(words []word.Word) []int {
 			fmt.Println(string(rune(n)))
 		case word.CR:
 			fmt.Println()
+		case word.EOF:
+			fmt.Println()
+		case word.ILLEGAL:
+			fmt.Printf("%x of type %d is illegal.\n", w.Literal, w.Type)
 		case word.PUSH:
 			v, e := strconv.Atoi(w.Literal)
 			if e != nil {
@@ -86,8 +85,7 @@ func eval(words []word.Word) []int {
 			}
 			s.Push(v)
 		default:
-			fmt.Println("you reached default")
-			log.Fatal("You reached DEFAULT")
+			log.Fatalf("reached default: %s (%x) has type %d\n", w.Literal, w.Literal, w.Type)
 		}
 	}
 	return s.Stk

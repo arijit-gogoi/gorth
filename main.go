@@ -1,0 +1,46 @@
+package main
+
+import (
+	"fmt"
+	"log"
+	"os"
+	"bufio"
+
+	"github.com/Jorghy-Del/gorth/eval"
+	"github.com/Jorghy-Del/gorth/lexer"
+	"github.com/Jorghy-Del/gorth/word"
+)
+
+func main() {
+	if len(os.Args) < 2 {
+		log.Fatal(fmt.Sprintf("usage: %s <filename>", os.Args[0]))
+	}
+	filename := os.Args[1]
+
+	fh, err := os.Open(filename)
+	defer fh.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	scanner := bufio.NewScanner(fh)
+
+	var words []word.Word
+	for scanner.Scan() {
+		line := scanner.Text()
+		fmt.Printf("line: %s\n", line)
+		lxr := lexer.New(line)
+
+		for {
+			w := lxr.NextToken()
+			if w.Type == word.EOF {
+				fmt.Printf("%v\n", w.Literal)
+				break
+			}
+			words = append(words, w)
+		}
+
+		returnStack := eval.Eval(words)
+		fmt.Printf("return stack: %v\n\n", returnStack)
+	}
+}

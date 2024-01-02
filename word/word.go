@@ -34,8 +34,12 @@ const (
 	OR
 	INVERT
 
+	// UDF
+	COLON
+	SEMICOLON
+
 	// extra
-	INT
+	NEWLINE
 	EOF
 	ILLEGAL
 )
@@ -60,6 +64,8 @@ var table = map[string]WordType{
 	"and":    AND,
 	"or":     OR,
 	"invert": INVERT,
+	":":      COLON,
+	";":	  SEMICOLON,
 }
 
 func GetWordType(s string) WordType {

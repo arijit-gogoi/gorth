@@ -1,4 +1,5 @@
 An implementation of forth in go.
 
-TODO:
-- [ ] implement NOTEQ (!=)
+`TODO`:
+- [x] can load file
+- [ ] implement `NOTEQ` (!=)

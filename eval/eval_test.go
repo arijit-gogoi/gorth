@@ -51,7 +51,7 @@ func TestEval(t *testing.T) {
 	for i, tt := range output {
 		tok := l.NextToken()
 		words = append(words, tok)
-		got := eval(words)
+		got := Eval(words)
 		t.Run("single", func(t *testing.T) {
 			if tok.Type != tt.expectedType {
 				t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q", i, tt.expectedType, tok.Type)
@@ -178,7 +178,7 @@ func TestEvalTable(t *testing.T) {
 		for i, o := range tc.output {
 			tok := l.NextToken()
 			words = append(words, tok)
-			got := eval(words)
+			got := Eval(words)
 			t.Run(tc.name, func(t *testing.T) {
 				if tok.Type != o.expectedType {
 					t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q", i, o.expectedType, tok.Type)
