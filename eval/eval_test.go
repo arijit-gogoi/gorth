@@ -49,16 +49,20 @@ func TestEval(t *testing.T) {
 	l := lexer.New(input)
 	words := []word.Word{}
 	for i, tt := range output {
-		tok := l.NextToken()
+		tok, _ := l.NextToken()
 		words = append(words, tok)
 		got := Eval(words)
 		t.Run("single", func(t *testing.T) {
 			if tok.Type != tt.expectedType {
 				t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q", i, tt.expectedType, tok.Type)
 			}
+		})
+		t.Run("single", func(t *testing.T) {
 			if tok.Literal != tt.expectedLiteral {
 				t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q", i, tt.expectedLiteral, tok.Literal)
 			}
+		})
+		t.Run("single", func(t *testing.T) {
 			for j := range got {
 				if got[j] != tt.expectedStk[j] {
 					t.Fatalf("tests[%d] - wrong evaluation. expected=%q, got=%q", i, tt.expectedLiteral, tok.Literal)
@@ -176,7 +180,7 @@ func TestEvalTable(t *testing.T) {
 		words := []word.Word{}
 
 		for i, o := range tc.output {
-			tok := l.NextToken()
+			tok, _ := l.NextToken()
 			words = append(words, tok)
 			got := Eval(words)
 			t.Run(tc.name, func(t *testing.T) {
