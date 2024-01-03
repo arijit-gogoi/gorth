@@ -26,8 +26,7 @@ func main() {
 	scanner := bufio.NewScanner(fh)
 
 	var words []word.Word
-	var dictionary map[string][]word.Word
-	udf := ""
+	dictionary := make(map[string][]word.Word)
 	for scanner.Scan() {
 		line := scanner.Text()
 		fmt.Printf("line: %s\n", line)
@@ -42,9 +41,14 @@ func main() {
 			for udf, def := range d {
 				if _, ok := dictionary[udf]; !ok {
 					dictionary[udf] = def
+				} else {
+					words = append(words, def...)
 				}
 			}
 			words = append(words, w)
+			if v, ok := dictionary[w.Literal]; ok {
+				words = append(words, v...)
+			}
 		}
 
 		returnStack := eval.Eval(words)

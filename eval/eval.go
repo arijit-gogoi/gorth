@@ -54,7 +54,8 @@ func Eval(words []word.Word) []int {
 			top := s.Pop()
 			fmt.Println(top)
 		case word.DUP:
-			s.Push(s.Top())
+			top := s.Top()
+			s.Push(top)
 		case word.DROP:
 			s.Pop()
 		case word.SWAP:
@@ -86,7 +87,7 @@ func Eval(words []word.Word) []int {
 			}
 			s.Push(v)
 		default:
-			log.Fatalf("reached default: %s (%x) has type %d\n", w.Literal, w.Literal, w.Type)
+			log.Fatalf("reached default: %s (%T) has type %d\n", w.Literal, w.Literal, w.Type)
 		}
 	}
 	return s.Stk

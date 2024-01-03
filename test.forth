@@ -1,2 +1,2 @@
-1 5 +
-invert
+: double dup + ;
+10 double

@@ -3,8 +3,9 @@ package word
 type WordType int
 
 type Word struct {
-	Type    WordType
-	Literal string
+	Type     WordType
+	Literal  string
+	Substack []int
 }
 
 const (
@@ -66,7 +67,7 @@ var table = map[string]WordType{
 	"or":     OR,
 	"invert": INVERT,
 	":":      COLON,
-	";":	  SEMICOLON,
+	";":      SEMICOLON,
 }
 
 func GetWordType(s string) WordType {

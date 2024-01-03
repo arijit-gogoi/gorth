@@ -1,5 +1,7 @@
 package stack
 
+import "log"
+
 type Stack struct {
 	Stk []int
 }
@@ -19,6 +21,9 @@ func (s *Stack) Len() int {
 }
 
 func (s *Stack) Top() int {
+	if len(s.Stk) < 0 {
+		log.Fatal("len(s.Stk) is 0")
+	}
 	return s.Stk[len(s.Stk)-1]
 }
 
