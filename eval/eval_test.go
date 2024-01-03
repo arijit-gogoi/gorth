@@ -173,19 +173,28 @@ func TestEvalTable(t *testing.T) {
 				{word.INVERT, "invert", []int{-3}},
 			},
 		},
+		{
+			name:  "the double UDF",
+			input: `: double dup + ; 10 double`,
+			output: []expected{
+				{word.UDF, "double", []int{}},
+				{word.PUSH, "10", []int{10}},
+				{word.UDF, "double", []int{20}},
+			},
+		},
 	}
 
-	for _, tc := range tests {
+	for i, tc := range tests {
 		l := lexer.New(tc.input)
 		words := []word.Word{}
 
-		for i, o := range tc.output {
+		for _, o := range tc.output {
 			tok, _ := l.NextToken()
 			words = append(words, tok)
 			got := Eval(words)
 			t.Run(tc.name, func(t *testing.T) {
 				if tok.Type != o.expectedType {
-					t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q", i, o.expectedType, tok.Type)
+					t.Fatalf("tests[%d] - tokentype wrong. expected=%v, got=%v", i, o.expectedType, tok.Type)
 				}
 			})
 			t.Run(tc.name, func(t *testing.T) {
@@ -196,9 +205,12 @@ func TestEvalTable(t *testing.T) {
 			t.Run(tc.name, func(t *testing.T) {
 				for j := range got {
 					if got[j] != o.expectedStk[j] {
-						t.Fatalf("tests[%d] - wrong evaluation. expected=%q, got=%q", i, o.expectedLiteral, tok.Literal)
+						t.Fatalf("tests[%d] - wrong evaluation. expected=%v, got=%v", i, o.expectedStk, got[j])
 					}
 				}
+			})
+			t.Run(tc.name, func(t *testing.T) {
+
 			})
 		}
 	}

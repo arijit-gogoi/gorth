@@ -26,16 +26,23 @@ func main() {
 	scanner := bufio.NewScanner(fh)
 
 	var words []word.Word
+	var dictionary map[string][]word.Word
+	udf := ""
 	for scanner.Scan() {
 		line := scanner.Text()
 		fmt.Printf("line: %s\n", line)
 		lxr := lexer.New(line)
 
 		for {
-			w := lxr.NextToken()
+			w, d := lxr.NextToken()
 			if w.Type == word.EOF {
 				fmt.Printf("%v\n", w.Literal)
 				break
+			}
+			for udf, def := range d {
+				if _, ok := dictionary[udf]; !ok {
+					dictionary[udf] = def
+				}
 			}
 			words = append(words, w)
 		}

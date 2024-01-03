@@ -13,6 +13,7 @@ func Eval(words []word.Word) []int {
 	var s stack.Stack
 	for _, w := range words {
 		switch w.Type {
+		case word.UDF:
 		case word.EQ:
 			if s.Pop() == s.Pop() {
 				s.Push(-1)
