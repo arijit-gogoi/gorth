@@ -138,6 +138,41 @@ func TestNextTokenTable(t *testing.T) {
 				},
 			},
 		},
+		{
+			name:  "udf: square",
+			input: `: double dup * ;`,
+			output: []expected{
+				{
+					expectedType: word.UDF,
+					expectedLiteral: "double",
+					expectedRecord: map[string][]word.Word{
+						"double": []word.Word{
+							{word.DUP, "dup"},
+							{word.MULTIPLY, "*"},
+							{word.SEMICOLON, ";"},
+						},
+					},
+				},
+			},
+		},
+		{
+			name:  "udf: half",
+			input: `: half 2 swap / ;`,
+			output: []expected{
+				{
+					expectedType: word.UDF,
+					expectedLiteral: "half",
+					expectedRecord: map[string][]word.Word{
+						"half": []word.Word{
+							{word.PUSH, "2"},
+							{word.SWAP, "swap"},
+							{word.DIVIDE, "/"},
+							{word.SEMICOLON, ";"},
+						},
+					},
+				},
+			},
+		},
 	}
 	for i, tc := range tests {
 		l := New(tc.input)
