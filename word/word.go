@@ -35,6 +35,7 @@ const (
 	INVERT
 
 	// UDF
+	UDF
 	COLON
 	SEMICOLON
 

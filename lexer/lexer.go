@@ -35,13 +35,19 @@ func (l *Lexer) peekChar() byte {
 	}
 }
 
-func (l *Lexer) NextToken() word.Word {
-	var tok word.Word
+
+func (l *Lexer) NextToken() (tok word.Word, dictionary map[string][]word.Word) {
+	dictionary = make(map[string][]word.Word)
 
 	l.skipWhitespace()
 
 	switch l.ch {
-	case '.', '+', '*', '/', '<', '>', '=':
+	case ':':
+		udf, defStk := l.readUDF()
+		dictionary[udf] = defStk
+		tok = newToken(word.UDF, udf)
+		return tok, dictionary
+	case ';', '.', '+', '*', '/', '<', '>', '=':
 		w := string(l.ch)
 		tok = newToken(word.GetWordType(w), w)
 	case '-':
@@ -50,7 +56,7 @@ func (l *Lexer) NextToken() word.Word {
 			tok.Type = word.PUSH
 			l.readChar()
 			tok.Literal = "-" + l.readNumber()
-			return tok
+			return tok, dictionary
 		} else {
 			w := string(l.ch)
 			tok = newToken(word.GetWordType(w), w)
@@ -64,17 +70,28 @@ func (l *Lexer) NextToken() word.Word {
 		if isDigit(l.ch) {
 			tok.Type = word.PUSH
 			tok.Literal = l.readNumber()
-			return tok
+			return tok, dictionary
 		} else {
 			tok = newToken(word.ILLEGAL, string(l.ch))
 		}
 	}
 	l.readChar()
-	return tok
+	return tok, dictionary
 }
 
 func newToken(wT word.WordType, literal string) word.Word {
 	return word.Word{Type: wT, Literal: literal}
+}
+
+func (l *Lexer) readUDF() (udf string, definitionStack []word.Word) {
+	l.readChar() // skip ':'
+	l.skipWhitespace()
+	udf = l.readWord()
+	for l.ch != ';' && l.ch != 0x00 {
+		tok, _ := l.NextToken()
+		definitionStack = append(definitionStack, tok)
+	}
+	return udf, definitionStack
 }
 
 func (l *Lexer) readWord() string {
@@ -86,7 +103,7 @@ func (l *Lexer) readWord() string {
 }
 
 func isLetter(ch byte) bool {
-	return 'a' <= ch && ch <= 'z'
+	return 'a' <= ch && ch <= 'z' || ch == '_'
 }
 
 func (l *Lexer) readNumber() string {
