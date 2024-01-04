@@ -232,6 +232,129 @@ func TestEvalTable(t *testing.T) {
 				},
 			},
 		},
+		{
+			name:  "udf: evaluate half",
+			input: `: half 2 swap / ; 100 half`,
+			output: []expected{
+				{
+					word.COLON, ":",
+					map[string][]word.Word{
+						"half": []word.Word{
+							{word.PUSH, "2"},
+							{word.SWAP, "swap"},
+							{word.DIVIDE, "/"},
+						},
+					},
+					[]int{},
+					[]word.Word{},
+				},
+				{
+					word.PUSH, "100",
+					map[string][]word.Word{
+						"half": []word.Word{
+							{word.PUSH, "2"},
+							{word.SWAP, "swap"},
+							{word.DIVIDE, "/"},
+						},
+					},
+					[]int{100},
+					[]word.Word{},
+				},
+				{
+					word.UDF, "half",
+					map[string][]word.Word{
+						"half": []word.Word{
+							{word.PUSH, "2"},
+							{word.SWAP, "swap"},
+							{word.DIVIDE, "/"},
+						},
+					},
+					[]int{50},
+					[]word.Word{},
+				},
+			},
+		},
+		{
+			name:  "udf: evaluate double then half",
+			input: `: double dup + ; : half 2 swap / ; 100 double half`,
+			output: []expected{
+				{
+					word.COLON, ":",
+					map[string][]word.Word{
+						"double": []word.Word{
+							{word.DUP, "dup"},
+							{word.ADD, "+"},
+						},
+					},
+					[]int{},
+					[]word.Word{},
+				},
+				{
+					word.COLON, ":",
+					map[string][]word.Word{
+						"double": []word.Word{
+							{word.DUP, "dup"},
+							{word.ADD, "+"},
+						},
+						"half": []word.Word{
+							{word.PUSH, "2"},
+							{word.SWAP, "swap"},
+							{word.DIVIDE, "/"},
+						},
+					},
+					[]int{},
+					[]word.Word{},
+				},
+				{
+					word.PUSH, "100",
+					map[string][]word.Word{
+						"double": []word.Word{
+							{word.DUP, "dup"},
+							{word.ADD, "+"},
+						},
+						"half": []word.Word{
+							{word.PUSH, "2"},
+							{word.SWAP, "swap"},
+							{word.DIVIDE, "/"},
+						},
+					},
+					[]int{100},
+					[]word.Word{},
+				},
+				{
+					word.UDF, "double",
+					map[string][]word.Word{
+						"double": []word.Word{
+							{word.DUP, "dup"},
+							{word.ADD, "+"},
+						},
+						"half": []word.Word{
+							{word.PUSH, "2"},
+							{word.SWAP, "swap"},
+							{word.DIVIDE, "/"},
+						},
+					},
+					[]int{200},
+					[]word.Word{},
+				},
+				{
+					word.UDF, "half",
+					map[string][]word.Word{
+						"double": []word.Word{
+							{word.DUP, "dup"},
+							{word.ADD, "+"},
+						},
+						"half": []word.Word{
+							{word.PUSH, "2"},
+							{word.SWAP, "swap"},
+							{word.DIVIDE, "/"},
+						},
+					},
+					[]int{100},
+					[]word.Word{},
+				},
+			},
+		},
 	}
 	for i, tc := range tests {
 		l := lexer.New(tc.input, map[string][]word.Word{})
@@ -267,68 +390,3 @@ func TestEvalTable(t *testing.T) {
 	}
 }
 
-// func TestEvalUDF(t *testing.T) {
-// 	type expected struct {
-// 		expectedDictionary map[word.Word][]word.Word
-// 		expectedType       word.WordType
-// 		expectedLiteral    string
-// 		expectedDef        []word.Word
-// 		expectedStk        []int
-// 	}
-// 	type test struct {
-// 		name   string
-// 		input  string
-// 		output []expected
-// 	}
-// 	tests := []test{
-// 		{
-// 			name:  "the double UDF",
-// 			input: `1 : double dup + ; 10 double`,
-// 			output: []expected{
-// 				{
-// 					expectedDictionary: map[word.Word][]word.Word{},
-// 					expectedType: word.PUSH,
-// 					expectedLiteral: "1",
-// 					expectedDef: []word.Word{},
-// 					expectedStk: []int{1},
-// 				},
-// 				{
-// 					expectedDictionary: map[word.Word][]word.Word{
-// 						{Type: word.UDF, Literal: "double"}: {
-// 							{word.DUP, "dup"}, {word.ADD, "+"},
-// 						},
-// 					},
-// 					expectedType: word.UDF,
-// 					expectedLiteral: "double",
-// 					expectedDef: []word.Word{
-// 						{word.DUP, "dup"}, {word.ADD, "+"}, {word.SEMICOLON, ";"},
-// 					},
-// 					expectedStk: []int{1},
-// 				},
-// 			},
-// 		},
-// 	}
-// 	for _, tc := range tests {
-// 		l := lexer.New(tc.input, map[string][]word.Word{})
-// 		words := []word.Word{}
-
-// 		for _, o := range tc.output {
-// 			tok, def := l.NextToken()
-
-// 			if tok.Type == word.UDF {
-// 				if _, ok := l.Dictionary[tok.Literal]; !ok {
-// 					l.Dictionary[tok.Literal] = def
-// 				} else {
-// 					words = append(words, def...)
-// 				}
-// 			} else {
-// 				words = append(words, tok)
-// 			}
-// 			got := Eval(words)
-
-// 			t.Run(tc.name, func(t *testing.T) {
-
-// 			})
-// 		}
-// 	}
-// }

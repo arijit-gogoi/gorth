@@ -62,13 +62,13 @@ func (l *Lexer) NextToken() (tok word.Word, defStack []word.Word) {
 			w := string(l.ch)
 			tok = newToken(word.GetWordType(w, l.Dictionary), w)
 		}
-	case 'c', 'd', 'e', 'o', 's', 'a', 'i':
-		w := l.readWord()
-		tok = newToken(word.GetWordType(w, l.Dictionary), w)
 	case 0x00:
 		tok = newToken(word.EOF, "0x00")
 	default:
-		if isDigit(l.ch) {
+		if isLetter(l.ch) {
+			w := l.readWord()
+			tok = newToken(word.GetWordType(w, l.Dictionary), w)
+		} else if isDigit(l.ch) {
 			tok.Type = word.PUSH
 			tok.Literal = l.readNumber()
 			return tok, defStack

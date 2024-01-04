@@ -75,7 +75,7 @@ func GetWordType(s string, dictionary map[string][]Word) WordType {
 	} else if _, ok := dictionary[s]; ok {
 		return UDF
 	}
-	return -1
+	return ILLEGAL
 }
 
 var Dictionary = make(map[Word][]Word)
