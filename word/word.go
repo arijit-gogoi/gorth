@@ -69,10 +69,10 @@ var Table = map[string]WordType{
 	";":	  SEMICOLON,
 }
 
-func GetWordType(s string, m map[string][]Word) WordType {
+func GetWordType(s string, dictionary map[string][]Word) WordType {
 	if wT, ok := Table[s]; ok {
 		return wT
-	} else if _, ok := m[s]; ok {
+	} else if _, ok := dictionary[s]; ok {
 		return UDF
 	}
 	return -1

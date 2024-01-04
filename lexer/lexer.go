@@ -9,13 +9,13 @@ type Lexer struct {
 	ch           byte
 	position     int
 	readPosition int
-	dictionary   map[string][]word.Word
+	Dictionary   map[string][]word.Word
 }
 
-func New(input string) *Lexer {
+func New(input string, dictionary map[string][]word.Word) *Lexer {
 	l := &Lexer{
 		input: input,
-		dictionary: map[string][]word.Word{},
+		Dictionary: dictionary,
 	}
 	l.readChar()
 	return l
@@ -45,13 +45,12 @@ func (l *Lexer) NextToken() (tok word.Word, defStack []word.Word) {
 
 	switch l.ch {
 	case ':':
-		udf, defStack := l.readUDF()
-		tok = newToken(word.UDF, udf)
-		l.dictionary[udf] = defStack
-		return tok, defStack
+		w := string(l.ch)
+		tok = newToken(word.GetWordType(w, l.Dictionary), w)
+
 	case ';', '.', '+', '*', '/', '<', '>', '=':
 		w := string(l.ch)
-		tok = newToken(word.GetWordType(w, l.dictionary), w)
+		tok = newToken(word.GetWordType(w, l.Dictionary), w)
 	case '-':
 		p := l.peekChar()
 		if isDigit(p) {
@@ -61,11 +60,11 @@ func (l *Lexer) NextToken() (tok word.Word, defStack []word.Word) {
 			return tok, defStack
 		} else {
 			w := string(l.ch)
-			tok = newToken(word.GetWordType(w, l.dictionary), w)
+			tok = newToken(word.GetWordType(w, l.Dictionary), w)
 		}
 	case 'c', 'd', 'e', 'o', 's', 'a', 'i':
 		w := l.readWord()
-		tok = newToken(word.GetWordType(w, l.dictionary), w)
+		tok = newToken(word.GetWordType(w, l.Dictionary), w)
 	case 0x00:
 		tok = newToken(word.EOF, "0x00")
 	default:
@@ -96,6 +95,7 @@ func (l *Lexer) readUDF() (udf string, definitionStack []word.Word) {
 		}
 		definitionStack = append(definitionStack, tok)
 	}
+	l.Dictionary[udf] = definitionStack
 	return udf, definitionStack
 }
 
