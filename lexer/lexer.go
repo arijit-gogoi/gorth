@@ -84,7 +84,7 @@ func newToken(wT word.WordType, literal string) word.Word {
 	return word.Word{Type: wT, Literal: literal}
 }
 
-func (l *Lexer) readUDF() (udf string, definitionStack []word.Word) {
+func (l *Lexer) ReadUDF() (udf string, definitionStack []word.Word) {
 	l.readChar() // skip ':'
 	l.skipWhitespace()
 	udf = l.readWord()

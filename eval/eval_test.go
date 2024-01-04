@@ -178,7 +178,7 @@ func TestEvalTable(t *testing.T) {
 		},
 		{
 			name:  "udf: full sentence",
-			input: `2 : double dup + ; 10 double`,
+			input: `2 : double dup + ; 10 double double`,
 			output: []expected{
 				{
 					word.PUSH, "2",
@@ -187,7 +187,7 @@ func TestEvalTable(t *testing.T) {
 					[]word.Word{},
 				},
 				{
-					word.UDF, "double",
+					word.COLON, ":",
 					map[string][]word.Word{
 						"double": []word.Word{
 							{word.DUP, "dup"},
@@ -219,6 +219,17 @@ func TestEvalTable(t *testing.T) {
 					[]int{2, 20},
 					[]word.Word{},
 				},
+				{
+					word.UDF, "double",
+					map[string][]word.Word{
+						"double": []word.Word{
+							{word.DUP, "dup"},
+							{word.ADD, "+"},
+						},
+					},
+					[]int{2, 40},
+					[]word.Word{},
+				},
 			},
 		},
 	}
@@ -229,7 +240,7 @@ func TestEvalTable(t *testing.T) {
 			tok, _ := l.NextToken()
 
 			if tok.Type == word.COLON {
-
+				_, _ = l.ReadUDF()
 			} else if tok.Type == word.UDF {
 				words = append(words, l.Dictionary[tok.Literal]...)
 			} else {

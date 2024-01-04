@@ -224,7 +224,7 @@ func TestNextTokenTable(t *testing.T) {
 		for _, o := range tc.output {
 			tok, _ := l.NextToken()
 			if tok.Type == word.COLON {
-				l.readUDF()
+				l.ReadUDF()
 			}
 			t.Run(tc.name, func(t *testing.T) {
 				if tok.Type != o.expectedType {
@@ -335,7 +335,7 @@ func TestReadUDF(t *testing.T) {
 	}
 	for _, tc := range tests {
 		l := New(tc.input, map[string][]word.Word{})
-		udf, defStack := l.readUDF()
+		udf, defStack := l.ReadUDF()
 		t.Run(tc.name, func(t *testing.T) {
 			if !reflect.DeepEqual(tc.expectedDictionary, l.Dictionary) {
 				t.Fatalf("l.Dictionary wrong. expected=%v, got=%v", tc.expectedDictionary, l.Dictionary)
