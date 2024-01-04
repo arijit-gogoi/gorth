@@ -15,7 +15,7 @@ type Lexer struct {
 
 func New(input string, dictionary map[string][]word.Word) *Lexer {
 	l := &Lexer{
-		input: input,
+		input:      input,
 		Dictionary: dictionary,
 	}
 	l.readChar()
@@ -39,7 +39,6 @@ func (l *Lexer) peekChar() byte {
 		return l.input[l.readPosition]
 	}
 }
-
 
 func (l *Lexer) NextToken() (tok word.Word, defStack []word.Word) {
 	l.skipWhitespace()
@@ -81,7 +80,7 @@ func newToken(wT word.WordType, literal string) word.Word {
 	return word.Word{Type: wT, Literal: literal}
 }
 
-func (l *Lexer) ReadUDF() {
+func (l *Lexer) ReadUDF() (isConditional bool) {
 	l.readChar() // skip ':'
 	l.skipWhitespace()
 	udf := l.readWord()

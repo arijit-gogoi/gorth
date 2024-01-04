@@ -264,8 +264,8 @@ func TestNextTokenTable(t *testing.T) {
 			input: `: buzz? 5 mod 0 = if 2 then ;`,
 			output: []expected{
 				{
-					expectedType:       word.COLON,
-					expectedLiteral:    ":",
+					expectedType:    word.COLON,
+					expectedLiteral: ":",
 					expectedDictionary: map[string][]word.Word{
 						"buzz?": []word.Word{
 							{word.PUSH, "5"},
@@ -315,22 +315,22 @@ func TestReadUDF(t *testing.T) {
 	}
 	tests := []test{
 		{
-			name:             "udf infinite loop",
-			input:            ": myudf",
+			name:  "udf infinite loop",
+			input: ": myudf",
 			expectedDictionary: map[string][]word.Word{
 				"myudf": []word.Word{},
 			},
 		},
 		{
-			name:             "just a word, no defStack",
-			input:            ": myword ;",
+			name:  "just a word, no defStack",
+			input: ": myword ;",
 			expectedDictionary: map[string][]word.Word{
 				"myword": []word.Word{},
 			},
 		},
 		{
-			name:        "udf: double",
-			input:       ": double dup + ;",
+			name:  "udf: double",
+			input: ": double dup + ;",
 			expectedDictionary: map[string][]word.Word{
 				"double": []word.Word{
 					{word.DUP, "dup"},
@@ -339,8 +339,8 @@ func TestReadUDF(t *testing.T) {
 			},
 		},
 		{
-			name:        "udf: square",
-			input:       ": square dup * ;",
+			name:  "udf: square",
+			input: ": square dup * ;",
 			expectedDictionary: map[string][]word.Word{
 				"square": []word.Word{
 					{word.DUP, "dup"},
@@ -349,8 +349,8 @@ func TestReadUDF(t *testing.T) {
 			},
 		},
 		{
-			name:        "udf: the double UDF",
-			input:       `: double dup + ; 10 double`,
+			name:  "udf: the double UDF",
+			input: `: double dup + ; 10 double`,
 			expectedDictionary: map[string][]word.Word{
 				"double": []word.Word{
 					{word.DUP, "dup"},
@@ -359,8 +359,8 @@ func TestReadUDF(t *testing.T) {
 			},
 		},
 		{
-			name:        "udf: full sentence",
-			input:       `: double dup + ; 10 double`,
+			name:  "udf: full sentence",
+			input: `: double dup + ; 10 double`,
 			expectedDictionary: map[string][]word.Word{
 				"double": []word.Word{
 					{word.DUP, "dup"},
