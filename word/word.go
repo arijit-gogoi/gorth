@@ -24,6 +24,7 @@ const (
 	SUBTRACT
 	MULTIPLY
 	DIVIDE
+	MOD
 
 	// Boolean Operations
 	EQ
@@ -33,6 +34,11 @@ const (
 	AND
 	OR
 	INVERT
+
+	// Conditionals
+	IF
+	ELSE
+	THEN
 
 	// UDF
 	UDF
@@ -50,7 +56,9 @@ var Table = map[string]WordType{
 	"*":      MULTIPLY,
 	"-":      SUBTRACT,
 	"/":      DIVIDE,
+	"%":	  MOD,
 	".":      POP,
+	"mod":    MOD,
 	"dup":    DUP,
 	"drop":   DROP,
 	"swap":   SWAP,
@@ -67,6 +75,9 @@ var Table = map[string]WordType{
 	"invert": INVERT,
 	":":      COLON,
 	";":	  SEMICOLON,
+	"if":	  IF,
+	"else":   ELSE,
+	"then":   THEN,
 }
 
 func GetWordType(s string, dictionary map[string][]Word) WordType {

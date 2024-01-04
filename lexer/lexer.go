@@ -2,6 +2,7 @@ package lexer
 
 import (
 	"github.com/Jorghy-Del/gorth/word"
+	"strings"
 )
 
 type Lexer struct {
@@ -44,13 +45,6 @@ func (l *Lexer) NextToken() (tok word.Word, defStack []word.Word) {
 	l.skipWhitespace()
 
 	switch l.ch {
-	case ':':
-		w := string(l.ch)
-		tok = newToken(word.GetWordType(w, l.Dictionary), w)
-
-	case ';', '.', '+', '*', '/', '<', '>', '=':
-		w := string(l.ch)
-		tok = newToken(word.GetWordType(w, l.Dictionary), w)
 	case '-':
 		p := l.peekChar()
 		if isDigit(p) {
@@ -62,6 +56,9 @@ func (l *Lexer) NextToken() (tok word.Word, defStack []word.Word) {
 			w := string(l.ch)
 			tok = newToken(word.GetWordType(w, l.Dictionary), w)
 		}
+	case ':', ';', '.', '+', '*', '/', '%', '<', '>', '=':
+		w := string(l.ch)
+		tok = newToken(word.GetWordType(w, l.Dictionary), w)
 	case 0x00:
 		tok = newToken(word.EOF, "0x00")
 	default:
@@ -84,19 +81,22 @@ func newToken(wT word.WordType, literal string) word.Word {
 	return word.Word{Type: wT, Literal: literal}
 }
 
-func (l *Lexer) ReadUDF() (udf string, definitionStack []word.Word) {
+func (l *Lexer) ReadUDF() {
 	l.readChar() // skip ':'
 	l.skipWhitespace()
-	udf = l.readWord()
+	udf := l.readWord()
+	definitionStack := []word.Word{}
 	for l.ch != 0x00 {
 		tok, _ := l.NextToken()
 		if tok.Type == word.SEMICOLON && tok.Literal == ";" {
 			break
 		}
+		if strings.HasSuffix(tok.Literal, "?") {
+			// tok.Type == word.IF
+		}
 		definitionStack = append(definitionStack, tok)
 	}
 	l.Dictionary[udf] = definitionStack
-	return udf, definitionStack
 }
 
 func (l *Lexer) readWord() string {
@@ -108,7 +108,7 @@ func (l *Lexer) readWord() string {
 }
 
 func isLetter(ch byte) bool {
-	return 'a' <= ch && ch <= 'z' || ch == '_'
+	return 'a' <= ch && ch <= 'z' || ch == '_' || ch == '?'
 }
 
 func (l *Lexer) readNumber() string {

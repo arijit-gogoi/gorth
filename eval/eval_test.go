@@ -88,6 +88,17 @@ func TestEvalTable(t *testing.T) {
 	}
 	tests := []test{
 		{
+			name:  "modulo: ",
+			input: `8 3 mod 3 mod`,
+			output: []expected{
+				{word.PUSH, "8", map[string][]word.Word{}, []int{8}, []word.Word{}},
+				{word.PUSH, "3", map[string][]word.Word{}, []int{8, 3}, []word.Word{}},
+				{word.MOD, "mod", map[string][]word.Word{}, []int{2}, []word.Word{}},
+				{word.PUSH, "3", map[string][]word.Word{}, []int{2, 3}, []word.Word{}},
+				{word.MOD, "mod", map[string][]word.Word{}, []int{2}, []word.Word{}},
+			},
+		},
+		{
 			name:  "add one and minus one",
 			input: `1 -1 +`,
 			output: []expected{
@@ -363,7 +374,7 @@ func TestEvalTable(t *testing.T) {
 			tok, _ := l.NextToken()
 
 			if tok.Type == word.COLON {
-				_, _ = l.ReadUDF()
+				l.ReadUDF()
 			} else if tok.Type == word.UDF {
 				words = append(words, l.Dictionary[tok.Literal]...)
 			} else {
@@ -389,4 +400,3 @@ func TestEvalTable(t *testing.T) {
 		}
 	}
 }
-
