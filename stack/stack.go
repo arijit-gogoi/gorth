@@ -31,7 +31,7 @@ func (s *Stack) Second() int {
 	return s.Stk[len(s.Stk)-2]
 }
 
-func (s *Stack) Append(definition []int) []int {
-	s.Stk = append(s.Stk, definition...)
+func (s *Stack) Append(definition *[]int) []int {
+	s.Stk = append(s.Stk, *definition...)
 	return s.Stk
 }

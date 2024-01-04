@@ -3,9 +3,8 @@ package word
 type WordType int
 
 type Word struct {
-	Type     WordType
-	Literal  string
-	Substack []int
+	Type    WordType
+	Literal string
 }
 
 const (
@@ -46,7 +45,7 @@ const (
 	ILLEGAL
 )
 
-var table = map[string]WordType{
+var Table = map[string]WordType{
 	"+":      ADD,
 	"*":      MULTIPLY,
 	"-":      SUBTRACT,
@@ -67,12 +66,16 @@ var table = map[string]WordType{
 	"or":     OR,
 	"invert": INVERT,
 	":":      COLON,
-	";":      SEMICOLON,
+	";":	  SEMICOLON,
 }
 
-func GetWordType(s string) WordType {
-	if tok, ok := table[s]; ok {
-		return tok
+func GetWordType(s string, m map[string][]Word) WordType {
+	if wT, ok := Table[s]; ok {
+		return wT
+	} else if _, ok := m[s]; ok {
+		return UDF
 	}
 	return -1
 }
+
+var Dictionary = make(map[Word][]Word)

@@ -1,6 +1,7 @@
 package eval
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/Jorghy-Del/gorth/lexer"
@@ -77,6 +78,7 @@ func TestEvalTable(t *testing.T) {
 		expectedType    word.WordType
 		expectedLiteral string
 		expectedStk     []int
+		expectedDef     []word.Word
 	}
 	type test struct {
 		name   string
@@ -88,111 +90,98 @@ func TestEvalTable(t *testing.T) {
 			name:  "add one and minus one",
 			input: `1 -1 +`,
 			output: []expected{
-				{word.PUSH, "1", []int{1}},
-				{word.PUSH, "-1", []int{1, -1}},
-				{word.ADD, "+", []int{0}},
+				{word.PUSH, "1", []int{1}, []word.Word{}},
+				{word.PUSH, "-1", []int{1, -1}, []word.Word{}},
+				{word.ADD, "+", []int{0}, []word.Word{}},
 			},
 		},
 		{
 			name:  "subtract two from one",
 			input: `2 1 -`,
 			output: []expected{
-				{word.PUSH, "2", []int{2}},
-				{word.PUSH, "1", []int{2, 1}},
-				{word.SUBTRACT, "-", []int{-1}},
+				{word.PUSH, "2", []int{2}, []word.Word{}},
+				{word.PUSH, "1", []int{2, 1}, []word.Word{}},
+				{word.SUBTRACT, "-", []int{-1}, []word.Word{}},
 			},
 		},
 		{
 			name:  "dup a number",
 			input: `420 dup`,
 			output: []expected{
-				{word.PUSH, "420", []int{420}},
-				{word.DUP, "dup", []int{420, 420}},
+				{word.PUSH, "420", []int{420}, []word.Word{}},
+				{word.DUP, "dup", []int{420, 420}, []word.Word{}},
 			},
 		},
 		{
 			name:  "cr cr cr",
 			input: `cr cr cr`,
 			output: []expected{
-				{word.CR, "cr", []int{}},
-				{word.CR, "cr", []int{}},
-				{word.CR, "cr", []int{}},
+				{word.CR, "cr", []int{}, []word.Word{}},
+				{word.CR, "cr", []int{}, []word.Word{}},
+				{word.CR, "cr", []int{}, []word.Word{}},
 			},
 		},
 		{
 			name:  "1 2 3 cr cr cr",
 			input: `1 2 3 cr cr cr`,
 			output: []expected{
-				{word.PUSH, "1", []int{1}},
-				{word.PUSH, "2", []int{1, 2}},
-				{word.PUSH, "3", []int{1, 2, 3}},
-				{word.CR, "cr", []int{1, 2, 3}},
-				{word.CR, "cr", []int{1, 2, 3}},
-				{word.CR, "cr", []int{1, 2, 3}},
+				{word.PUSH, "1", []int{1}, []word.Word{}},
+				{word.PUSH, "2", []int{1, 2}, []word.Word{}},
+				{word.PUSH, "3", []int{1, 2, 3}, []word.Word{}},
+				{word.CR, "cr", []int{1, 2, 3}, []word.Word{}},
+				{word.CR, "cr", []int{1, 2, 3}, []word.Word{}},
+				{word.CR, "cr", []int{1, 2, 3}, []word.Word{}},
 			},
 		},
 		{
 			name:  "Single character logical operations",
 			input: `1 2 < -2 > -1 =`,
 			output: []expected{
-				{word.PUSH, "1", []int{1}},
-				{word.PUSH, "2", []int{1, 2}},
-				{word.LT, "<", []int{-1}},
-				{word.PUSH, "-2", []int{-1, -2}},
-				{word.GT, ">", []int{-1}},
-				{word.PUSH, "-1", []int{-1, -1}},
-				{word.EQ, "=", []int{-1}},
+				{word.PUSH, "1", []int{1}, []word.Word{}},
+				{word.PUSH, "2", []int{1, 2}, []word.Word{}},
+				{word.LT, "<", []int{-1}, []word.Word{}},
+				{word.PUSH, "-2", []int{-1, -2}, []word.Word{}},
+				{word.GT, ">", []int{-1}, []word.Word{}},
+				{word.PUSH, "-1", []int{-1, -1}, []word.Word{}},
+				{word.EQ, "=", []int{-1}, []word.Word{}},
 			},
 		},
 		{
 			name:  "and",
 			input: `10 12 and`,
 			output: []expected{
-				{word.PUSH, "10", []int{10}},
-				{word.PUSH, "12", []int{10, 12}},
-				{word.AND, "and", []int{8}},
+				{word.PUSH, "10", []int{10}, []word.Word{}},
+				{word.PUSH, "12", []int{10, 12}, []word.Word{}},
+				{word.AND, "and", []int{8}, []word.Word{}},
 			},
 		},
 		{
 			name:  "test or with two numbers",
 			input: `10 12 or`,
 			output: []expected{
-				{word.PUSH, "10", []int{10}},
-				{word.PUSH, "12", []int{10, 12}},
-				{word.OR, "or", []int{14}},
+				{word.PUSH, "10", []int{10}, []word.Word{}},
+				{word.PUSH, "12", []int{10, 12}, []word.Word{}},
+				{word.OR, "or", []int{14}, []word.Word{}},
 			},
 		},
 		{
 			name:  "invert: bitwise not",
 			input: `1 invert -1 * invert`,
 			output: []expected{
-				{word.PUSH, "1", []int{1}},
-				{word.INVERT, "invert", []int{-2}},
-				{word.PUSH, "-1", []int{-2, -1}},
-				{word.MULTIPLY, "*", []int{2}},
-				{word.INVERT, "invert", []int{-3}},
-			},
-		},
-		{
-			name:  "the double UDF",
-			input: `: double dup + ; 10 double`,
-			output: []expected{
-				{word.UDF, "double", []int{}},
-				{word.PUSH, "10", []int{10}},
-				{word.UDF, "double", []int{20}},
+				{word.PUSH, "1", []int{1}, []word.Word{}},
+				{word.INVERT, "invert", []int{-2}, []word.Word{}},
+				{word.PUSH, "-1", []int{-2, -1}, []word.Word{}},
+				{word.MULTIPLY, "*", []int{2}, []word.Word{}},
+				{word.INVERT, "invert", []int{-3}, []word.Word{}},
 			},
 		},
 	}
-
 	for i, tc := range tests {
 		l := lexer.New(tc.input)
 		words := []word.Word{}
-
 		for n, o := range tc.output {
-			tok, d := l.NextToken()
-			x := d[tok.Literal]
+			tok, _ := l.NextToken()
 			words = append(words, tok)
-			Eval(x)
 			got := Eval(words)
 			t.Run(tc.name, func(t *testing.T) {
 				if tok.Type != o.expectedType {
@@ -202,6 +191,81 @@ func TestEvalTable(t *testing.T) {
 			t.Run(tc.name, func(t *testing.T) {
 				if tok.Literal != o.expectedLiteral {
 					t.Fatalf("tests[%d, %d] - literal wrong. expected=%q, got=%q", i, n, o.expectedLiteral, tok.Literal)
+				}
+			})
+			t.Run(tc.name, func(t *testing.T) {
+				for j := range got {
+					if got[j] != o.expectedStk[j] {
+						t.Fatalf("tests[%d, %d, %d] - wrong evaluation. expected=%v, got=%v", i, n, j, o.expectedStk, got[j])
+					}
+				}
+			})
+		}
+	}
+}
+
+func TestEvalUDF(t *testing.T) {
+	type expected struct {
+		expectedDictionary map[word.Word][]word.Word
+		expectedType       word.WordType
+		expectedLiteral    string
+		expectedDef        []word.Word
+		expectedStk        []int
+	}
+	type test struct {
+		name   string
+		input  string
+		output []expected
+	}
+	tests := []test{
+		{
+			name:  "the double UDF",
+			input: `1 : double dup + ; 10 double`,
+			output: []expected{
+				{
+					expectedDictionary: map[word.Word][]word.Word{},
+					expectedType: word.PUSH,
+					expectedLiteral: "1",
+					expectedDef: []word.Word{},
+					expectedStk: []int{1},
+				},
+				{
+					expectedDictionary: map[word.Word][]word.Word{
+						{Type: word.UDF, Literal: "double"}: {
+							{word.DUP, "dup"}, {word.ADD, "+"}, {word.SEMICOLON, ";"},
+						},
+					},
+					expectedType: word.UDF,
+					expectedLiteral: "double",
+					expectedDef: []word.Word{
+						{word.DUP, "dup"}, {word.ADD, "+"}, {word.SEMICOLON, ";"},
+					},
+					expectedStk: []int{1},
+				},
+			},
+		},
+	}
+	for i, tc := range tests {
+		l := lexer.New(tc.input)
+		dictionary := make(map[word.Word][]word.Word)
+		words := []word.Word{}
+
+		for n, o := range tc.output {
+			tok, def := l.NextToken()
+
+			if tok.Type == word.UDF {
+				if _, ok := dictionary[tok]; !ok {
+					dictionary[tok] = def
+				} else {
+					words = append(words, def...)
+				}
+			} else {
+				words = append(words, tok)
+			}
+			got := Eval(words)
+			t.Run(tc.name, func(t *testing.T) {
+				if !reflect.DeepEqual(dictionary, o.expectedDictionary) {
+					t.Fatalf("test[%d]: dictionary wrong. expected: %v, got: %v", i, o.expectedDictionary, dictionary)
 				}
 			})
 			t.Run(tc.name, func(t *testing.T) {

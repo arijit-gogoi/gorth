@@ -1,7 +1,6 @@
 package lexer
 
 import (
-	"reflect"
 	"slices"
 	"testing"
 
@@ -55,9 +54,9 @@ func TestNextToken(t *testing.T) {
 
 func TestNextTokenTable(t *testing.T) {
 	type expected struct {
-		expectedType    word.WordType
-		expectedLiteral string
-		expectedRecord  map[string][]word.Word
+		expectedType       word.WordType
+		expectedLiteral    string
+		expectedDefinition []word.Word
 	}
 	type test struct {
 		name   string
@@ -69,56 +68,56 @@ func TestNextTokenTable(t *testing.T) {
 			name:  "dup a number",
 			input: `420 dup`,
 			output: []expected{
-				{word.PUSH, "420", map[string][]word.Word{}},
-				{word.DUP, "dup", map[string][]word.Word{}},
+				{expectedType: word.PUSH, expectedLiteral: "420", expectedDefinition: []word.Word{}},
+				{expectedType: word.DUP, expectedLiteral: "dup", expectedDefinition: []word.Word{}},
 			},
 		},
 		{
 			name:  "cr cr cr",
 			input: `cr cr cr`,
 			output: []expected{
-				{word.CR, "cr", map[string][]word.Word{}},
-				{word.CR, "cr", map[string][]word.Word{}},
-				{word.CR, "cr", map[string][]word.Word{}},
+				{word.CR, "cr", []word.Word{}},
+				{word.CR, "cr", []word.Word{}},
+				{word.CR, "cr", []word.Word{}},
 			},
 		},
 		{
 			name:  "LT and GT",
 			input: `1 2 < -2 > -1 =`,
 			output: []expected{
-				{word.PUSH, "1", map[string][]word.Word{}},
-				{word.PUSH, "2", map[string][]word.Word{}},
-				{word.LT, "<", map[string][]word.Word{}},
-				{word.PUSH, "-2", map[string][]word.Word{}},
-				{word.GT, ">", map[string][]word.Word{}},
-				{word.PUSH, "-1", map[string][]word.Word{}},
-				{word.EQ, "=", map[string][]word.Word{}},
+				{word.PUSH, "1", []word.Word{}},
+				{word.PUSH, "2", []word.Word{}},
+				{word.LT, "<", []word.Word{}},
+				{word.PUSH, "-2", []word.Word{}},
+				{word.GT, ">", []word.Word{}},
+				{word.PUSH, "-1", []word.Word{}},
+				{word.EQ, "=", []word.Word{}},
 			},
 		},
 		{
 			name:  "and",
 			input: `10 12 and`,
 			output: []expected{
-				{word.PUSH, "10", map[string][]word.Word{}},
-				{word.PUSH, "12", map[string][]word.Word{}},
-				{word.AND, "and", map[string][]word.Word{}},
+				{word.PUSH, "10", []word.Word{}},
+				{word.PUSH, "12", []word.Word{}},
+				{word.AND, "and", []word.Word{}},
 			},
 		},
 		{
 			name:  "test or with two numbers",
 			input: `10 12 or`,
 			output: []expected{
-				{word.PUSH, "10", map[string][]word.Word{}},
-				{word.PUSH, "12", map[string][]word.Word{}},
-				{word.OR, "or", map[string][]word.Word{}},
+				{word.PUSH, "10", []word.Word{}},
+				{word.PUSH, "12", []word.Word{}},
+				{word.OR, "or", []word.Word{}},
 			},
 		},
 		{
 			name:  "invert: bitwise not",
 			input: `1 invert`,
 			output: []expected{
-				{word.PUSH, "1", map[string][]word.Word{}},
-				{word.INVERT, "invert", map[string][]word.Word{}},
+				{word.PUSH, "1", []word.Word{}},
+				{word.INVERT, "invert", []word.Word{}},
 			},
 		},
 		{
@@ -126,14 +125,11 @@ func TestNextTokenTable(t *testing.T) {
 			input: `: double dup + ;`,
 			output: []expected{
 				{
-					expectedType: word.UDF,
+					expectedType:    word.UDF,
 					expectedLiteral: "double",
-					expectedRecord: map[string][]word.Word{
-						"double": []word.Word{
-							{word.DUP, "dup"},
-							{word.ADD, "+"},
-							{word.SEMICOLON, ";"},
-						},
+					expectedDefinition: []word.Word{
+						{word.DUP, "dup"},
+						{word.ADD, "+"},
 					},
 				},
 			},
@@ -143,14 +139,11 @@ func TestNextTokenTable(t *testing.T) {
 			input: `: double dup * ;`,
 			output: []expected{
 				{
-					expectedType: word.UDF,
+					expectedType:    word.UDF,
 					expectedLiteral: "double",
-					expectedRecord: map[string][]word.Word{
-						"double": []word.Word{
-							{word.DUP, "dup"},
-							{word.MULTIPLY, "*"},
-							{word.SEMICOLON, ";"},
-						},
+					expectedDefinition: []word.Word{
+						{word.DUP, "dup"},
+						{word.MULTIPLY, "*"},
 					},
 				},
 			},
@@ -160,16 +153,43 @@ func TestNextTokenTable(t *testing.T) {
 			input: `: half 2 swap / ;`,
 			output: []expected{
 				{
-					expectedType: word.UDF,
+					expectedType:    word.UDF,
 					expectedLiteral: "half",
-					expectedRecord: map[string][]word.Word{
-						"half": []word.Word{
-							{word.PUSH, "2"},
-							{word.SWAP, "swap"},
-							{word.DIVIDE, "/"},
-							{word.SEMICOLON, ";"},
-						},
+					expectedDefinition: []word.Word{
+						{word.PUSH, "2"},
+						{word.SWAP, "swap"},
+						{word.DIVIDE, "/"},
 					},
+				},
+			},
+		},
+		{
+			name:  "udf: simple full sentence",
+			input: `1 : double dup + ; 10 double`,
+			output: []expected{
+				{
+					expectedType:    word.PUSH,
+					expectedLiteral: "1",
+					expectedDefinition: []word.Word{},
+				},
+				{
+					expectedType:    word.UDF,
+					expectedLiteral: "double",
+					expectedDefinition: []word.Word{
+						{word.DUP, "dup"},
+						{word.ADD, "+"},
+					},
+				},
+				{
+					expectedType:    word.PUSH,
+					expectedLiteral: "10",
+					expectedDefinition: []word.Word{
+					},
+				},
+				{
+					expectedType:    word.UDF,
+					expectedLiteral: "double",
+					expectedDefinition: []word.Word{},
 				},
 			},
 		},
@@ -190,8 +210,8 @@ func TestNextTokenTable(t *testing.T) {
 				}
 			})
 			t.Run(tc.name, func(t *testing.T) {
-				if !reflect.DeepEqual(d, o.expectedRecord) {
-					t.Fatalf("tests[%d] - record wrong. expected=%v, got=%v", i, o.expectedRecord, d)
+				if !slices.Equal(d, o.expectedDefinition) {
+					t.Fatalf("tests[%d] - record wrong. expected=%v, got=%v", i, o.expectedDefinition, d)
 				}
 			})
 		}
@@ -213,31 +233,46 @@ func TestReadUDF(t *testing.T) {
 			expectedDefStack: []word.Word{},
 		},
 		{
-			name:             "just a word, no defStack",
-			input:            ": myword ;",
-			expectedUDF:      "myword",
+			name:        "just a word, no defStack",
+			input:       ": myword ;",
+			expectedUDF: "myword",
 			expectedDefStack: []word.Word{
-				{word.SEMICOLON, ";"},
 			},
 		},
 		{
-			name:             "udf double",
-			input:            ": double dup + ;",
-			expectedUDF:      "double",
+			name:        "udf: double",
+			input:       ": double dup + ;",
+			expectedUDF: "double",
 			expectedDefStack: []word.Word{
 				{word.DUP, "dup"},
 				{word.ADD, "+"},
-				{word.SEMICOLON, ";"},
 			},
 		},
 		{
-			name:             "udf square",
-			input:            ": square dup * ;",
-			expectedUDF:      "square",
+			name:        "udf: square",
+			input:       ": square dup * ;",
+			expectedUDF: "square",
 			expectedDefStack: []word.Word{
 				{word.DUP, "dup"},
 				{word.MULTIPLY, "*"},
-				{word.SEMICOLON, ";"},
+			},
+		},
+		{
+			name:        "udf: the double UDF",
+			input:       `: double dup + ; 10 double`,
+			expectedUDF: "double",
+			expectedDefStack: []word.Word{
+				{word.DUP, "dup"},
+				{word.ADD, "+"},
+			},
+		},
+		{
+			name:        "udf: full sentence",
+			input:       `: double dup + ; 10 double`,
+			expectedUDF: "double",
+			expectedDefStack: []word.Word{
+				{word.DUP, "dup"},
+				{word.ADD, "+"},
 			},
 		},
 	}

@@ -9,10 +9,14 @@ type Lexer struct {
 	ch           byte
 	position     int
 	readPosition int
+	dictionary   map[string][]word.Word
 }
 
 func New(input string) *Lexer {
-	l := &Lexer{input: input}
+	l := &Lexer{
+		input: input,
+		dictionary: map[string][]word.Word{},
+	}
 	l.readChar()
 	return l
 }
@@ -36,47 +40,45 @@ func (l *Lexer) peekChar() byte {
 }
 
 
-func (l *Lexer) NextToken() (tok word.Word, dictionary map[string][]word.Word) {
-	dictionary = make(map[string][]word.Word)
-
+func (l *Lexer) NextToken() (tok word.Word, defStack []word.Word) {
 	l.skipWhitespace()
 
 	switch l.ch {
 	case ':':
-		udf, defStk := l.readUDF()
-		dictionary[udf] = defStk
+		udf, defStack := l.readUDF()
 		tok = newToken(word.UDF, udf)
-		return tok, dictionary
+		l.dictionary[udf] = defStack
+		return tok, defStack
 	case ';', '.', '+', '*', '/', '<', '>', '=':
 		w := string(l.ch)
-		tok = newToken(word.GetWordType(w), w)
+		tok = newToken(word.GetWordType(w, l.dictionary), w)
 	case '-':
 		p := l.peekChar()
 		if isDigit(p) {
 			tok.Type = word.PUSH
 			l.readChar()
 			tok.Literal = "-" + l.readNumber()
-			return tok, dictionary
+			return tok, defStack
 		} else {
 			w := string(l.ch)
-			tok = newToken(word.GetWordType(w), w)
+			tok = newToken(word.GetWordType(w, l.dictionary), w)
 		}
 	case 'c', 'd', 'e', 'o', 's', 'a', 'i':
 		w := l.readWord()
-		tok = newToken(word.GetWordType(w), w)
+		tok = newToken(word.GetWordType(w, l.dictionary), w)
 	case 0x00:
 		tok = newToken(word.EOF, "0x00")
 	default:
 		if isDigit(l.ch) {
 			tok.Type = word.PUSH
 			tok.Literal = l.readNumber()
-			return tok, dictionary
+			return tok, defStack
 		} else {
 			tok = newToken(word.ILLEGAL, string(l.ch))
 		}
 	}
 	l.readChar()
-	return tok, dictionary
+	return tok, defStack
 }
 
 func newToken(wT word.WordType, literal string) word.Word {
@@ -87,8 +89,11 @@ func (l *Lexer) readUDF() (udf string, definitionStack []word.Word) {
 	l.readChar() // skip ':'
 	l.skipWhitespace()
 	udf = l.readWord()
-	for l.ch != ';' && l.ch != 0x00 {
+	for l.ch != 0x00 {
 		tok, _ := l.NextToken()
+		if tok.Type == word.SEMICOLON && tok.Literal == ";" {
+			break
+		}
 		definitionStack = append(definitionStack, tok)
 	}
 	return udf, definitionStack
