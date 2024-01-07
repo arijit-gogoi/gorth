@@ -2,7 +2,6 @@ package lexer
 
 import (
 	"github.com/Jorghy-Del/gorth/word"
-	"strings"
 )
 
 type Lexer struct {
@@ -40,7 +39,7 @@ func (l *Lexer) peekChar() byte {
 	}
 }
 
-func (l *Lexer) NextToken() (tok word.Word, defStack []word.Word) {
+func (l *Lexer) NextToken() (tok word.Word) {
 	l.skipWhitespace()
 
 	switch l.ch {
@@ -50,7 +49,7 @@ func (l *Lexer) NextToken() (tok word.Word, defStack []word.Word) {
 			tok.Type = word.PUSH
 			l.readChar()
 			tok.Literal = "-" + l.readNumber()
-			return tok, defStack
+			return tok
 		} else {
 			w := string(l.ch)
 			tok = newToken(word.GetWordType(w, l.Dictionary), w)
@@ -62,43 +61,47 @@ func (l *Lexer) NextToken() (tok word.Word, defStack []word.Word) {
 		tok = newToken(word.EOF, "0x00")
 	default:
 		if isLetter(l.ch) {
-			w := l.readWord()
+			w := l.readString()
 			tok = newToken(word.GetWordType(w, l.Dictionary), w)
 		} else if isDigit(l.ch) {
 			tok.Type = word.PUSH
 			tok.Literal = l.readNumber()
-			return tok, defStack
+			return tok
 		} else {
 			tok = newToken(word.ILLEGAL, string(l.ch))
 		}
 	}
 	l.readChar()
-	return tok, defStack
+	return tok
 }
 
 func newToken(wT word.WordType, literal string) word.Word {
 	return word.Word{Type: wT, Literal: literal}
 }
 
-func (l *Lexer) ReadUDF() (isConditional bool) {
+func (l *Lexer) ParseUDF() (isConditional bool, udf string, definitionStack []word.Word) {
+	isConditional = false
 	l.readChar() // skip ':'
 	l.skipWhitespace()
-	udf := l.readWord()
-	definitionStack := []word.Word{}
+	udf = l.readString()
 	for l.ch != 0x00 {
-		tok, _ := l.NextToken()
+		tok := l.NextToken()
 		if tok.Type == word.SEMICOLON && tok.Literal == ";" {
 			break
 		}
-		if strings.HasSuffix(tok.Literal, "?") {
-			// tok.Type == word.IF
+		if tok.Type == word.IF {
+			isConditional = true
+		}
+		if tok.Type == word.THEN {
+			// continue
 		}
 		definitionStack = append(definitionStack, tok)
 	}
 	l.Dictionary[udf] = definitionStack
+	return isConditional, udf, definitionStack
 }
 
-func (l *Lexer) readWord() string {
+func (l *Lexer) readString() string {
 	start := l.position
 	for isLetter(l.ch) {
 		l.readChar()

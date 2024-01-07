@@ -9,7 +9,7 @@ import (
 	"github.com/Jorghy-Del/gorth/word"
 )
 
-func Eval(words []word.Word) []int {
+func Execute(words []word.Word) []int {
 	var s stack.Stack
 	for _, w := range words {
 		switch w.Type {
@@ -90,7 +90,7 @@ func Eval(words []word.Word) []int {
 			}
 			s.Push(v)
 		default:
-			log.Fatalf("reached default: %s (%T) has type %v\n", w.Literal, w.Literal, w.Type)
+			log.Fatalf("reached default %s (%T) has type %v\n", w.Literal, w.Literal, w.Type)
 		}
 	}
 	return s.Stk

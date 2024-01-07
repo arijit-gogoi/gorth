@@ -17,14 +17,14 @@ const (
 	OVER
 	SPIN
 	EMIT
-	CR
+	CR // 8
 
 	// Math Operations
 	ADD
 	SUBTRACT
 	MULTIPLY
 	DIVIDE
-	MOD
+	MOD // 13
 
 	// Boolean Operations
 	EQ
@@ -33,22 +33,22 @@ const (
 	NOTEQ
 	AND
 	OR
-	INVERT
+	INVERT // 20
 
 	// Conditionals
 	IF
 	ELSE
-	THEN
+	THEN // 23
 
 	// UDF
 	UDF
-	COLON
-	SEMICOLON
+	DEFINE
+	SEMICOLON // 26
 
 	// extra
 	NEWLINE
 	EOF
-	ILLEGAL
+	ILLEGAL // 29
 )
 
 var Table = map[string]WordType{
@@ -56,8 +56,8 @@ var Table = map[string]WordType{
 	"*":      MULTIPLY,
 	"-":      SUBTRACT,
 	"/":      DIVIDE,
-	"%":	  MOD,
 	".":      POP,
+	"%":	  MOD,
 	"mod":    MOD,
 	"dup":    DUP,
 	"drop":   DROP,
@@ -73,7 +73,7 @@ var Table = map[string]WordType{
 	"and":    AND,
 	"or":     OR,
 	"invert": INVERT,
-	":":      COLON,
+	":":      DEFINE,
 	";":	  SEMICOLON,
 	"if":	  IF,
 	"else":   ELSE,

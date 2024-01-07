@@ -40,7 +40,7 @@ func TestNextToken(t *testing.T) {
 
 	l := New(input, map[string][]word.Word{})
 	for i, tt := range output {
-		tok, _ := l.NextToken()
+		tok := l.NextToken()
 		t.Run("single", func(t *testing.T) {
 			if tok.Type != tt.expectedType {
 				t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q", i, tt.expectedType, tok.Type)
@@ -175,7 +175,7 @@ func TestNextTokenTable(t *testing.T) {
 			input: `: double dup + ;`,
 			output: []expected{
 				{
-					expectedType:    word.COLON,
+					expectedType:    word.DEFINE,
 					expectedLiteral: ":",
 					expectedDictionary: map[string][]word.Word{
 						"double": []word.Word{
@@ -191,7 +191,7 @@ func TestNextTokenTable(t *testing.T) {
 			input: `: double dup * ;`,
 			output: []expected{
 				{
-					expectedType:    word.COLON,
+					expectedType:    word.DEFINE,
 					expectedLiteral: ":",
 					expectedDictionary: map[string][]word.Word{
 						"double": []word.Word{
@@ -206,7 +206,7 @@ func TestNextTokenTable(t *testing.T) {
 			input: `: half 2 swap / ;`,
 			output: []expected{
 				{
-					expectedType:    word.COLON,
+					expectedType:    word.DEFINE,
 					expectedLiteral: ":",
 					expectedDictionary: map[string][]word.Word{
 						"half": []word.Word{
@@ -228,7 +228,7 @@ func TestNextTokenTable(t *testing.T) {
 					expectedDictionary: map[string][]word.Word{},
 				},
 				{
-					expectedType:    word.COLON,
+					expectedType:    word.DEFINE,
 					expectedLiteral: ":",
 					expectedDictionary: map[string][]word.Word{
 						"double": []word.Word{
@@ -260,11 +260,11 @@ func TestNextTokenTable(t *testing.T) {
 			},
 		},
 		{
-			name:  "udf if: true push 420",
+			name:  "udf if: push 2",
 			input: `: buzz? 5 mod 0 = if 2 then ;`,
 			output: []expected{
 				{
-					expectedType:    word.COLON,
+					expectedType:    word.DEFINE,
 					expectedLiteral: ":",
 					expectedDictionary: map[string][]word.Word{
 						"buzz?": []word.Word{
@@ -284,9 +284,9 @@ func TestNextTokenTable(t *testing.T) {
 	for i, tc := range tests {
 		l := New(tc.input, map[string][]word.Word{})
 		for _, o := range tc.output {
-			tok, _ := l.NextToken()
-			if tok.Type == word.COLON {
-				l.ReadUDF()
+			tok := l.NextToken()
+			if tok.Type == word.DEFINE {
+				l.ParseUDF()
 			}
 			t.Run(tc.name, func(t *testing.T) {
 				if !reflect.DeepEqual(l.Dictionary, o.expectedDictionary) {
@@ -307,7 +307,7 @@ func TestNextTokenTable(t *testing.T) {
 	}
 }
 
-func TestReadUDF(t *testing.T) {
+func TestParseUDF(t *testing.T) {
 	type test struct {
 		name               string
 		input              string
@@ -318,14 +318,14 @@ func TestReadUDF(t *testing.T) {
 			name:  "udf infinite loop",
 			input: ": myudf",
 			expectedDictionary: map[string][]word.Word{
-				"myudf": []word.Word{},
+				"myudf": nil,
 			},
 		},
 		{
 			name:  "just a word, no defStack",
 			input: ": myword ;",
 			expectedDictionary: map[string][]word.Word{
-				"myword": []word.Word{},
+				"myword": nil,
 			},
 		},
 		{
@@ -371,7 +371,7 @@ func TestReadUDF(t *testing.T) {
 	}
 	for _, tc := range tests {
 		l := New(tc.input, map[string][]word.Word{})
-		l.ReadUDF()
+		l.ParseUDF()
 		t.Run(tc.name, func(t *testing.T) {
 			if !reflect.DeepEqual(tc.expectedDictionary, l.Dictionary) {
 				t.Fatalf("l.Dictionary wrong. expected=%v, got=%v", tc.expectedDictionary, l.Dictionary)

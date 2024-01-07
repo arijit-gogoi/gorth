@@ -51,7 +51,7 @@ func main() {
 			}
 		}
 
-		returnStack := eval.Eval(words)
+		returnStack := eval.Execute(words)
 		fmt.Printf("return stack: %v\n\n", returnStack)
 	}
 }
