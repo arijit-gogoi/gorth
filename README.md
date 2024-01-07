@@ -1,10 +1,10 @@
 An implementation of forth in go.
 
 `TODO`:
-- [ ] implement TRUE and FALSE
+- [x] implement TRUE and FALSE
+- [x] implement if else then
 - [x] can load file
 
 
 ### Conditionals
 
-So far i have been trying to implement `if then else` without `TRUE and FALSE`.

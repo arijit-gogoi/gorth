@@ -9,15 +9,15 @@ type Word struct {
 
 const (
 	// Boolean Operations
-	TRUE = -1
+	TRUE  = -1
 	FALSE = 0
-	EQ = iota
+	EQ    = iota
+	NOTEQ
 	LT
 	GT
-	NOTEQ
 	AND
 	OR
-	INVERT //
+	INVERT // 8
 
 	// Stack
 	INT
@@ -28,15 +28,14 @@ const (
 	OVER
 	SPIN
 	EMIT
-	CR // 8
+	CR // 17
 
 	// Math Operations
 	ADD
 	SUBTRACT
 	MULTIPLY
 	DIVIDE
-	MOD // 13
-
+	MOD // 22
 
 	// Conditionals
 	IF
