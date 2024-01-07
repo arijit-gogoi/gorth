@@ -59,14 +59,16 @@ func TestNextTokenTable(t *testing.T) {
 		expectedDictionary map[string][]word.Word
 	}
 	type test struct {
-		name   string
-		input  string
-		output []expected
+		name       string
+		dictionary map[string][]word.Word
+		input      string
+		output     []expected
 	}
 	tests := []test{
 		{
-			name:  "mod",
-			input: `5 5 mod`,
+			name:       "mod",
+			dictionary: map[string][]word.Word{},
+			input:      `5 5 mod`,
 			output: []expected{
 				{
 					expectedType:       word.PUSH,
@@ -86,8 +88,9 @@ func TestNextTokenTable(t *testing.T) {
 			},
 		},
 		{
-			name:  "%",
-			input: `5 5 %`,
+			name:       "%",
+			input:      `5 5 %`,
+			dictionary: map[string][]word.Word{},
 			output: []expected{
 				{
 					expectedType:       word.PUSH,
@@ -107,8 +110,9 @@ func TestNextTokenTable(t *testing.T) {
 			},
 		},
 		{
-			name:  "dup a number",
-			input: `420 dup`,
+			name:       "dup a number",
+			input:      `420 dup`,
+			dictionary: map[string][]word.Word{},
 			output: []expected{
 				{
 					expectedType:       word.PUSH,
@@ -123,8 +127,9 @@ func TestNextTokenTable(t *testing.T) {
 			},
 		},
 		{
-			name:  "cr cr cr",
-			input: `cr cr cr`,
+			name:       "cr cr cr",
+			input:      `cr cr cr`,
+			dictionary: map[string][]word.Word{},
 			output: []expected{
 				{word.CR, "cr", map[string][]word.Word{}},
 				{word.CR, "cr", map[string][]word.Word{}},
@@ -132,8 +137,9 @@ func TestNextTokenTable(t *testing.T) {
 			},
 		},
 		{
-			name:  "LT and GT",
-			input: `1 2 < -2 > -1 =`,
+			name:       "LT and GT",
+			input:      `1 2 < -2 > -1 =`,
+			dictionary: map[string][]word.Word{},
 			output: []expected{
 				{word.PUSH, "1", map[string][]word.Word{}},
 				{word.PUSH, "2", map[string][]word.Word{}},
@@ -145,8 +151,9 @@ func TestNextTokenTable(t *testing.T) {
 			},
 		},
 		{
-			name:  "and",
-			input: `10 12 and`,
+			name:       "and",
+			input:      `10 12 and`,
+			dictionary: map[string][]word.Word{},
 			output: []expected{
 				{word.PUSH, "10", map[string][]word.Word{}},
 				{word.PUSH, "12", map[string][]word.Word{}},
@@ -154,8 +161,9 @@ func TestNextTokenTable(t *testing.T) {
 			},
 		},
 		{
-			name:  "test or with two numbers",
-			input: `10 12 or`,
+			name:       "test or with two numbers",
+			input:      `10 12 or`,
+			dictionary: map[string][]word.Word{},
 			output: []expected{
 				{word.PUSH, "10", map[string][]word.Word{}},
 				{word.PUSH, "12", map[string][]word.Word{}},
@@ -163,16 +171,18 @@ func TestNextTokenTable(t *testing.T) {
 			},
 		},
 		{
-			name:  "invert: bitwise not",
-			input: `1 invert`,
+			name:       "invert: bitwise not",
+			input:      `1 invert`,
+			dictionary: map[string][]word.Word{},
 			output: []expected{
 				{word.PUSH, "1", map[string][]word.Word{}},
 				{word.INVERT, "invert", map[string][]word.Word{}},
 			},
 		},
 		{
-			name:  "udf: double",
-			input: `: double dup + ;`,
+			name:       "udf: double",
+			input:      `: double dup + ;`,
+			dictionary: map[string][]word.Word{},
 			output: []expected{
 				{
 					expectedType:    word.DEFINE,
@@ -187,8 +197,9 @@ func TestNextTokenTable(t *testing.T) {
 			},
 		},
 		{
-			name:  "udf: square",
-			input: `: double dup * ;`,
+			name:       "udf: square",
+			input:      `: double dup * ;`,
+			dictionary: map[string][]word.Word{},
 			output: []expected{
 				{
 					expectedType:    word.DEFINE,
@@ -202,8 +213,9 @@ func TestNextTokenTable(t *testing.T) {
 			},
 		},
 		{
-			name:  "udf: half",
-			input: `: half 2 swap / ;`,
+			name:       "udf: half",
+			input:      `: half 2 swap / ;`,
+			dictionary: map[string][]word.Word{},
 			output: []expected{
 				{
 					expectedType:    word.DEFINE,
@@ -219,8 +231,9 @@ func TestNextTokenTable(t *testing.T) {
 			},
 		},
 		{
-			name:  "udf: simple full sentence",
-			input: `1 : double dup + ; 10 double`,
+			name:       "udf: simple full sentence",
+			input:      `1 : double dup + ; 10 double`,
+			dictionary: map[string][]word.Word{},
 			output: []expected{
 				{
 					expectedType:       word.PUSH,
@@ -260,8 +273,9 @@ func TestNextTokenTable(t *testing.T) {
 			},
 		},
 		{
-			name:  "udf if: push 2",
-			input: `: buzz? 5 mod 0 = if 2 then ;`,
+			name:       "udf if: push 2",
+			input:      `: buzz? 5 mod 0 = if 2 then ;`,
+			dictionary: map[string][]word.Word{},
 			output: []expected{
 				{
 					expectedType:    word.DEFINE,
@@ -282,7 +296,7 @@ func TestNextTokenTable(t *testing.T) {
 		},
 	}
 	for i, tc := range tests {
-		l := New(tc.input, map[string][]word.Word{})
+		l := New(tc.input, tc.dictionary)
 		for _, o := range tc.output {
 			tok := l.NextToken()
 			if tok.Type == word.DEFINE {
@@ -310,27 +324,31 @@ func TestNextTokenTable(t *testing.T) {
 func TestParseUDF(t *testing.T) {
 	type test struct {
 		name               string
+		dictionary         map[string][]word.Word
 		input              string
 		expectedDictionary map[string][]word.Word
 	}
 	tests := []test{
 		{
-			name:  "udf infinite loop",
-			input: ": myudf",
+			name:       "udf infinite loop",
+			input:      ": myudf",
+			dictionary: map[string][]word.Word{},
 			expectedDictionary: map[string][]word.Word{
 				"myudf": nil,
 			},
 		},
 		{
-			name:  "just a word, no defStack",
-			input: ": myword ;",
+			name:       "just a word, no defStack",
+			input:      ": myword ;",
+			dictionary: map[string][]word.Word{},
 			expectedDictionary: map[string][]word.Word{
 				"myword": nil,
 			},
 		},
 		{
-			name:  "udf: double",
-			input: ": double dup + ;",
+			name:       "udf: double",
+			input:      ": double dup + ;",
+			dictionary: map[string][]word.Word{},
 			expectedDictionary: map[string][]word.Word{
 				"double": []word.Word{
 					{word.DUP, "dup"},
@@ -339,8 +357,9 @@ func TestParseUDF(t *testing.T) {
 			},
 		},
 		{
-			name:  "udf: square",
-			input: ": square dup * ;",
+			name:       "udf: square",
+			input:      ": square dup * ;",
+			dictionary: map[string][]word.Word{},
 			expectedDictionary: map[string][]word.Word{
 				"square": []word.Word{
 					{word.DUP, "dup"},
@@ -349,8 +368,9 @@ func TestParseUDF(t *testing.T) {
 			},
 		},
 		{
-			name:  "udf: the double UDF",
-			input: `: double dup + ; 10 double`,
+			name:       "udf: the double UDF",
+			input:      `: double dup + ; 10 double`,
+			dictionary: map[string][]word.Word{},
 			expectedDictionary: map[string][]word.Word{
 				"double": []word.Word{
 					{word.DUP, "dup"},
@@ -359,8 +379,9 @@ func TestParseUDF(t *testing.T) {
 			},
 		},
 		{
-			name:  "udf: full sentence",
-			input: `: double dup + ; 10 double`,
+			name:       "udf: full sentence",
+			input:      `: double dup + ; 10 double`,
+			dictionary: map[string][]word.Word{},
 			expectedDictionary: map[string][]word.Word{
 				"double": []word.Word{
 					{word.DUP, "dup"},
@@ -370,7 +391,7 @@ func TestParseUDF(t *testing.T) {
 		},
 	}
 	for _, tc := range tests {
-		l := New(tc.input, map[string][]word.Word{})
+		l := New(tc.input, tc.dictionary)
 		l.ParseUDF()
 		t.Run(tc.name, func(t *testing.T) {
 			if !reflect.DeepEqual(tc.expectedDictionary, l.Dictionary) {

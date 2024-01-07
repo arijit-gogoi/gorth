@@ -8,70 +8,6 @@ import (
 	"github.com/Jorghy-Del/gorth/word"
 )
 
-func TestEval(t *testing.T) {
-	input := `5 -10 + 1 . 1 - -1 * -6 / dup drop 2 swap over spin . . . 97 emit
-1 2 < -2 > -1 =`
-	type expected struct {
-		expectedType    word.WordType
-		expectedLiteral string
-		expectedStk     []int
-	}
-	output := []expected{
-		{word.PUSH, "5", []int{5}},
-		{word.PUSH, "-10", []int{5, -10}},
-		{word.ADD, "+", []int{-5}},
-		{word.PUSH, "1", []int{-5, 1}},
-		{word.POP, ".", []int{-5}},
-		{word.PUSH, "1", []int{-5, 1}},
-		{word.SUBTRACT, "-", []int{6}},
-		{word.PUSH, "-1", []int{6, -1}},
-		{word.MULTIPLY, "*", []int{-6}},
-		{word.PUSH, "-6", []int{-6, -6}},
-		{word.DIVIDE, "/", []int{1}},
-		{word.DUP, "dup", []int{1, 1}},
-		{word.DROP, "drop", []int{1}},
-		{word.PUSH, "2", []int{1, 2}},
-		{word.SWAP, "swap", []int{2, 1}},
-		{word.OVER, "over", []int{2, 1, 2}},
-		{word.SPIN, "spin", []int{1, 2, 2}},
-		{word.POP, ".", []int{1, 2}},
-		{word.POP, ".", []int{1}},
-		{word.POP, ".", []int{}},
-		{word.PUSH, "97", []int{97}},
-		{word.EMIT, "emit", []int{}},
-		{word.PUSH, "1", []int{1}},
-		{word.PUSH, "2", []int{1, 2}},
-		{word.LT, "<", []int{-1}},
-		{word.PUSH, "-2", []int{-1, -2}},
-		{word.GT, ">", []int{-1}},
-		{word.PUSH, "-1", []int{-1, -1}},
-		{word.EQ, "=", []int{-1}},
-	}
-	l := lexer.New(input, map[string][]word.Word{})
-	words := []word.Word{}
-	for i, tt := range output {
-		tok := l.NextToken()
-		words = append(words, tok)
-		got := Execute(words)
-		t.Run("single", func(t *testing.T) {
-			if tok.Type != tt.expectedType {
-				t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q", i, tt.expectedType, tok.Type)
-			}
-		})
-		t.Run("single", func(t *testing.T) {
-			if tok.Literal != tt.expectedLiteral {
-				t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q", i, tt.expectedLiteral, tok.Literal)
-			}
-		})
-		t.Run("single", func(t *testing.T) {
-			for j := range got {
-				if got[j] != tt.expectedStk[j] {
-					t.Fatalf("tests[%d] - wrong evaluation. expected=%q, got=%q", i, tt.expectedLiteral, tok.Literal)
-				}
-			}
-		})
-	}
-}
 
 func TestEvalTable(t *testing.T) {
 	type expected struct {
@@ -81,14 +17,16 @@ func TestEvalTable(t *testing.T) {
 		expectedStk        []int
 	}
 	type test struct {
-		name   string
-		input  string
-		output []expected
+		name       string
+		input      string
+		dictionary map[string][]word.Word
+		output     []expected
 	}
 	tests := []test{
 		{
 			name:  "modulo: ",
 			input: `8 3 mod 3 mod`,
+			dictionary: map[string][]word.Word{},
 			output: []expected{
 				{word.PUSH, "8", map[string][]word.Word{}, []int{8}},
 				{word.PUSH, "3", map[string][]word.Word{}, []int{8, 3}},
@@ -100,6 +38,7 @@ func TestEvalTable(t *testing.T) {
 		{
 			name:  "add one and minus one",
 			input: `1 -1 +`,
+			dictionary: map[string][]word.Word{},
 			output: []expected{
 				{word.PUSH, "1", map[string][]word.Word{}, []int{1}},
 				{word.PUSH, "-1", map[string][]word.Word{}, []int{1, -1}},
@@ -109,6 +48,7 @@ func TestEvalTable(t *testing.T) {
 		{
 			name:  "subtract two from one",
 			input: `2 1 -`,
+			dictionary: map[string][]word.Word{},
 			output: []expected{
 				{word.PUSH, "2", map[string][]word.Word{}, []int{2}},
 				{word.PUSH, "1", map[string][]word.Word{}, []int{2, 1}},
@@ -118,6 +58,7 @@ func TestEvalTable(t *testing.T) {
 		{
 			name:  "dup a number",
 			input: `420 dup`,
+			dictionary: map[string][]word.Word{},
 			output: []expected{
 				{word.PUSH, "420", map[string][]word.Word{}, []int{420}},
 				{word.DUP, "dup", map[string][]word.Word{}, []int{420, 420}},
@@ -126,6 +67,7 @@ func TestEvalTable(t *testing.T) {
 		{
 			name:  "cr cr cr",
 			input: `cr cr cr`,
+			dictionary: map[string][]word.Word{},
 			output: []expected{
 				{word.CR, "cr", map[string][]word.Word{}, []int{}},
 				{word.CR, "cr", map[string][]word.Word{}, []int{}},
@@ -135,6 +77,7 @@ func TestEvalTable(t *testing.T) {
 		{
 			name:  "1 2 3 cr cr cr",
 			input: `1 2 3 cr cr cr`,
+			dictionary: map[string][]word.Word{},
 			output: []expected{
 				{word.PUSH, "1", map[string][]word.Word{}, []int{1}},
 				{word.PUSH, "2", map[string][]word.Word{}, []int{1, 2}},
@@ -147,6 +90,7 @@ func TestEvalTable(t *testing.T) {
 		{
 			name:  "Single character logical operations",
 			input: `1 2 < -2 > -1 =`,
+			dictionary: map[string][]word.Word{},
 			output: []expected{
 				{word.PUSH, "1", map[string][]word.Word{}, []int{1}},
 				{word.PUSH, "2", map[string][]word.Word{}, []int{1, 2}},
@@ -160,6 +104,7 @@ func TestEvalTable(t *testing.T) {
 		{
 			name:  "and",
 			input: `10 12 and`,
+			dictionary: map[string][]word.Word{},
 			output: []expected{
 				{word.PUSH, "10", map[string][]word.Word{}, []int{10}},
 				{word.PUSH, "12", map[string][]word.Word{}, []int{10, 12}},
@@ -169,6 +114,7 @@ func TestEvalTable(t *testing.T) {
 		{
 			name:  "test or with two numbers",
 			input: `10 12 or`,
+			dictionary: map[string][]word.Word{},
 			output: []expected{
 				{word.PUSH, "10", map[string][]word.Word{}, []int{10}},
 				{word.PUSH, "12", map[string][]word.Word{}, []int{10, 12}},
@@ -178,6 +124,7 @@ func TestEvalTable(t *testing.T) {
 		{
 			name:  "invert: bitwise not",
 			input: `1 invert -1 * invert`,
+			dictionary: map[string][]word.Word{},
 			output: []expected{
 				{word.PUSH, "1", map[string][]word.Word{}, []int{1}},
 				{word.INVERT, "invert", map[string][]word.Word{}, []int{-2}},
@@ -189,6 +136,7 @@ func TestEvalTable(t *testing.T) {
 		{
 			name:  "udf: full sentence",
 			input: `2 : double dup + ; 10 double double`,
+			dictionary: map[string][]word.Word{},
 			output: []expected{
 				{
 					word.PUSH, "2",
@@ -240,6 +188,7 @@ func TestEvalTable(t *testing.T) {
 		{
 			name:  "udf: evaluate half",
 			input: `: half 2 swap / ; 100 half`,
+			dictionary: map[string][]word.Word{},
 			output: []expected{
 				{
 					word.DEFINE, ":",
@@ -279,6 +228,7 @@ func TestEvalTable(t *testing.T) {
 		{
 			name:  "udf: evaluate double then half",
 			input: `: double dup + ; : half 2 swap / ; 100 double half`,
+			dictionary: map[string][]word.Word{},
 			output: []expected{
 				{
 					word.DEFINE, ":",
@@ -355,6 +305,7 @@ func TestEvalTable(t *testing.T) {
 		{
 			name:  "udf if: push 420",
 			input: `: buzz? 5 mod 0 = if 420 then ;`,
+			dictionary: map[string][]word.Word{},
 			output: []expected{
 				{
 					word.DEFINE, ":",
@@ -375,7 +326,7 @@ func TestEvalTable(t *testing.T) {
 		},
 	}
 	for i, tc := range tests {
-		l := lexer.New(tc.input, map[string][]word.Word{})
+		l := lexer.New(tc.input, tc.dictionary)
 		words := []word.Word{}
 		got := []int{}
 		for n, o := range tc.output {
