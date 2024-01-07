@@ -9,7 +9,7 @@ import (
 	"github.com/Jorghy-Del/gorth/word"
 )
 
-func Evaluate(script []word.Word) []int {
+func Execute(script []word.Word) []int {
 	var s stack.Stack
 	for _, w := range script {
 		switch w.Type {

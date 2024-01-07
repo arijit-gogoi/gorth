@@ -26,32 +26,32 @@ func main() {
 	scanner := bufio.NewScanner(fh)
 
 	var words []word.Word
-	dictionary := make(map[string][]word.Word)
+	dictionary := map[string][]word.Word{}
 	for scanner.Scan() {
 		line := scanner.Text()
 		fmt.Printf("line: %s\n", line)
-		lxr := lexer.New(line)
+		l := lexer.New(line, dictionary)
 
 		for {
-			w, d := lxr.NextToken()
+			w := l.NextToken()
 			if w.Type == word.EOF {
 				fmt.Printf("%v\n", w.Literal)
 				break
 			}
-			for udf, def := range d {
-				if _, ok := dictionary[udf]; !ok {
-					dictionary[udf] = def
-				} else {
-					words = append(words, def...)
-				}
-			}
-			words = append(words, w)
-			if v, ok := dictionary[w.Literal]; ok {
-				words = append(words, v...)
-			}
+			// for udf, def := range d {
+			// 	if _, ok := dictionary[udf]; !ok {
+			// 		dictionary[udf] = def
+			// 	} else {
+			// 		words = append(words, def...)
+			// 	}
+			// }
+			// words = append(words, w)
+			// if v, ok := dictionary[w.Literal]; ok {
+			// 	words = append(words, v...)
+			// }
 		}
 
-		returnStack := eval.Evaluate(words)
-		fmt.Printf("return stack: %v\n\n", returnStack)
+		ParameterStack := eval.Execute(words)
+		fmt.Printf(">>: %v\n\n", ParameterStack)
 	}
 }

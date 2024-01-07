@@ -322,7 +322,7 @@ func TestNextTokenTable(t *testing.T) {
 		for _, o := range tc.output {
 			tok := l.NextToken()
 			if tok.Type == word.DEFINE {
-				l.ParseUDF()
+				l.DefineWord()
 			}
 			t.Run(tc.name, func(t *testing.T) {
 				if !reflect.DeepEqual(l.Dictionary, o.expectedDictionary) {
@@ -343,7 +343,7 @@ func TestNextTokenTable(t *testing.T) {
 	}
 }
 
-func TestParseUDF(t *testing.T) {
+func TestDefineWord(t *testing.T) {
 	type test struct {
 		name               string
 		dictionary         map[string][]word.Word
@@ -414,7 +414,7 @@ func TestParseUDF(t *testing.T) {
 	}
 	for _, tc := range tests {
 		l := New(tc.input, tc.dictionary)
-		l.ParseUDF()
+		l.DefineWord()
 		t.Run(tc.name, func(t *testing.T) {
 			if !reflect.DeepEqual(tc.expectedDictionary, l.Dictionary) {
 				t.Fatalf("l.Dictionary wrong. expected=%v, got=%v", tc.expectedDictionary, l.Dictionary)

@@ -36,7 +36,7 @@ func TestEvalTable(t *testing.T) {
 		},
 		{
 			name:       "or",
-			input:      `0 0 or -1 or 0 or -1 or`,
+			input:      `0 0 or -1 or 0 or -1 or 1 or`,
 			dictionary: map[string][]word.Word{},
 			output: []expected{
 				{word.INT, "0", map[string][]word.Word{}, []int{0}},
@@ -47,6 +47,8 @@ func TestEvalTable(t *testing.T) {
 				{word.INT, "0", map[string][]word.Word{}, []int{-1, 0}},
 				{word.OR, "or", map[string][]word.Word{}, []int{-1}},
 				{word.INT, "-1", map[string][]word.Word{}, []int{-1, -1}},
+				{word.OR, "or", map[string][]word.Word{}, []int{-1}},
+				{word.INT, "1", map[string][]word.Word{}, []int{-1, 1}},
 				{word.OR, "or", map[string][]word.Word{}, []int{-1}},
 			},
 		},
@@ -509,17 +511,16 @@ func TestEvalTable(t *testing.T) {
 	for i, tc := range tests {
 		l := lexer.New(tc.input, tc.dictionary)
 		script := []word.Word{}
-		got := []int{}
+
+
 		for n, o := range tc.output {
 			tok := l.NextToken()
-
-			if tok.Type == word.DEFINE {
-				l.ParseUDF()
-			} else if tok.Type == word.UDF {
+			switch tok.Type {
+			case word.DEFINE:
+				l.DefineWord()
+			case word.UDF:
 				def := l.Dictionary[tok.Literal]
-
 				isConditional := false
-
 				for _, t := range def {
 					if t.Type == word.IF {
 						isConditional = true
@@ -536,12 +537,11 @@ func TestEvalTable(t *testing.T) {
 				if !isConditional {
 					script = append(script, def...)
 				}
-
-			} else {
+			default:
 				script = append(script, tok)
 			}
+			got := Execute(script)
 
-			got = Evaluate(script)
 			t.Run(tc.name, func(t *testing.T) {
 				if tok.Type != o.expectedType {
 					t.Fatalf("tests[%d, %d] - tokentype wrong. expected=%v, got=%v", i, n, o.expectedType, tok.Type)
