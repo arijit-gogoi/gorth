@@ -377,20 +377,27 @@ func TestEvalTable(t *testing.T) {
 	for i, tc := range tests {
 		l := lexer.New(tc.input, map[string][]word.Word{})
 		words := []word.Word{}
+		got := []int{}
 		for n, o := range tc.output {
 			tok := l.NextToken()
 
 			if tok.Type == word.DEFINE {
-				isConditional, _, _ := l.ParseUDF()
-				if isConditional {
-				}
+				l.ParseUDF()
 			} else if tok.Type == word.UDF {
-				words = append(words, l.Dictionary[tok.Literal]...)
+				if tok.Type == word.IF {
+					// def := l.Dictionary[tok.Literal]
+					// consequent := def[len(def)-2]
+					// if words[len(words)-1].Literal != "0" { // if true
+					// 	words = append(words, consequent)
+					// }
+				}
+				def := l.Dictionary[tok.Literal]
+				words = append(words, def...)
 			} else {
 				words = append(words, tok)
 			}
 
-			got := Execute(words)
+			got = Execute(words)
 			t.Run(tc.name, func(t *testing.T) {
 				if tok.Type != o.expectedType {
 					t.Fatalf("tests[%d, %d] - tokentype wrong. expected=%v, got=%v", i, n, o.expectedType, tok.Type)

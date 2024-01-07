@@ -13,6 +13,10 @@ func Execute(words []word.Word) []int {
 	var s stack.Stack
 	for _, w := range words {
 		switch w.Type {
+		// case word.IF:
+		// 	s.Pop()
+		// 	// if s.Top() != 0 { // if true (since 0 is false)
+		// 	// }
 		case word.EQ:
 			if s.Pop() == s.Pop() {
 				s.Push(-1)

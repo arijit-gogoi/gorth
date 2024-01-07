@@ -79,26 +79,20 @@ func newToken(wT word.WordType, literal string) word.Word {
 	return word.Word{Type: wT, Literal: literal}
 }
 
-func (l *Lexer) ParseUDF() (isConditional bool, udf string, definitionStack []word.Word) {
-	isConditional = false
+func (l *Lexer) ParseUDF() {
 	l.readChar() // skip ':'
 	l.skipWhitespace()
-	udf = l.readString()
+	udf := l.readString()
+
+	var definitionStack []word.Word
 	for l.ch != 0x00 {
 		tok := l.NextToken()
 		if tok.Type == word.SEMICOLON && tok.Literal == ";" {
 			break
 		}
-		if tok.Type == word.IF {
-			isConditional = true
-		}
-		if tok.Type == word.THEN {
-			// continue
-		}
 		definitionStack = append(definitionStack, tok)
 	}
 	l.Dictionary[udf] = definitionStack
-	return isConditional, udf, definitionStack
 }
 
 func (l *Lexer) readString() string {
