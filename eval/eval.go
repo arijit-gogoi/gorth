@@ -9,42 +9,42 @@ import (
 	"github.com/Jorghy-Del/gorth/word"
 )
 
-func Execute(words []word.Word) []int {
+func Evaluate(script []word.Word) []int {
 	var s stack.Stack
-	for _, w := range words {
+	for _, w := range script {
 		switch w.Type {
-		// case word.IF:
-		// 	s.Pop()
-		// 	// if s.Top() != 0 { // if true (since 0 is false)
-		// 	// }
-		case word.EQ:
-			if s.Pop() == s.Pop() {
-				s.Push(-1)
-			} else {
-				s.Push(0)
-			}
-		case word.LT:
-			v1 := s.Pop()
-			v2 := s.Pop()
-			if v2 < v1 {
-				s.Push(-1)
-			} else {
-				s.Push(0)
-			}
-		case word.GT:
-			v1 := s.Pop()
-			v2 := s.Pop()
-			if v2 > v1 {
-				s.Push(-1)
-			} else {
-				s.Push(0)
-			}
+		case word.TRUE:
+			s.Push(-1)
+		case word.FALSE:
+			s.Push(0)
 		case word.AND:
 			s.Push(s.Pop() & s.Pop())
 		case word.OR:
 			s.Push(s.Pop() | s.Pop())
 		case word.INVERT:
 			s.Push(^s.Pop())
+		case word.EQ:
+			if s.Pop() == s.Pop() {
+				s.Push(word.TRUE)
+			} else {
+				s.Push(word.FALSE)
+			}
+		case word.LT:
+			v1 := s.Pop()
+			v2 := s.Pop()
+			if v2 < v1 {
+				s.Push(word.TRUE)
+			} else {
+				s.Push(word.FALSE)
+			}
+		case word.GT:
+			v1 := s.Pop()
+			v2 := s.Pop()
+			if v2 > v1 {
+				s.Push(word.TRUE)
+			} else {
+				s.Push(word.FALSE)
+			}
 		case word.ADD:
 			s.Push(s.Pop() + s.Pop())
 		case word.SUBTRACT:
@@ -87,7 +87,7 @@ func Execute(words []word.Word) []int {
 			fmt.Println()
 		case word.ILLEGAL:
 			fmt.Printf("%x of type %d is illegal.\n", w.Literal, w.Type)
-		case word.PUSH:
+		case word.INT:
 			v, e := strconv.Atoi(w.Literal)
 			if e != nil {
 				log.Fatal(e)

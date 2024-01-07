@@ -46,7 +46,7 @@ func (l *Lexer) NextToken() (tok word.Word) {
 	case '-':
 		p := l.peekChar()
 		if isDigit(p) {
-			tok.Type = word.PUSH
+			tok.Type = word.INT
 			l.readChar()
 			tok.Literal = "-" + l.readNumber()
 			return tok
@@ -64,7 +64,7 @@ func (l *Lexer) NextToken() (tok word.Word) {
 			w := l.readString()
 			tok = newToken(word.GetWordType(w, l.Dictionary), w)
 		} else if isDigit(l.ch) {
-			tok.Type = word.PUSH
+			tok.Type = word.INT
 			tok.Literal = l.readNumber()
 			return tok
 		} else {
@@ -104,7 +104,7 @@ func (l *Lexer) readString() string {
 }
 
 func isLetter(ch byte) bool {
-	return 'a' <= ch && ch <= 'z' || ch == '_' || ch == '?'
+	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_' || ch == '?'
 }
 
 func (l *Lexer) readNumber() string {

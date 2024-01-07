@@ -8,8 +8,19 @@ type Word struct {
 }
 
 const (
+	// Boolean Operations
+	TRUE = -1
+	FALSE = 0
+	EQ = iota
+	LT
+	GT
+	NOTEQ
+	AND
+	OR
+	INVERT //
+
 	// Stack
-	PUSH = iota
+	INT
 	POP
 	DUP
 	DROP
@@ -26,29 +37,21 @@ const (
 	DIVIDE
 	MOD // 13
 
-	// Boolean Operations
-	EQ
-	LT
-	GT
-	NOTEQ
-	AND
-	OR
-	INVERT // 20
 
 	// Conditionals
 	IF
 	ELSE
-	THEN // 23
+	THEN // 25
 
 	// UDF
 	UDF
 	DEFINE
-	SEMICOLON // 26
+	SEMICOLON // 28
 
 	// extra
 	NEWLINE
 	EOF
-	ILLEGAL // 29
+	ILLEGAL // 31
 )
 
 var Table = map[string]WordType{
@@ -57,7 +60,7 @@ var Table = map[string]WordType{
 	"-":      SUBTRACT,
 	"/":      DIVIDE,
 	".":      POP,
-	"%":	  MOD,
+	"%":      MOD,
 	"mod":    MOD,
 	"dup":    DUP,
 	"drop":   DROP,
@@ -66,6 +69,8 @@ var Table = map[string]WordType{
 	"spin":   SPIN,
 	"emit":   EMIT,
 	"cr":     CR,
+	"true":   TRUE,
+	"false":  FALSE,
 	"=":      EQ,
 	"<":      LT,
 	">":      GT,
@@ -74,8 +79,8 @@ var Table = map[string]WordType{
 	"or":     OR,
 	"invert": INVERT,
 	":":      DEFINE,
-	";":	  SEMICOLON,
-	"if":	  IF,
+	";":      SEMICOLON,
+	"if":     IF,
 	"else":   ELSE,
 	"then":   THEN,
 }
@@ -88,5 +93,3 @@ func GetWordType(s string, dictionary map[string][]Word) WordType {
 	}
 	return ILLEGAL
 }
-
-var Dictionary = make(map[Word][]Word)

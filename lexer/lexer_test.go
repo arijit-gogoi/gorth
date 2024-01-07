@@ -14,27 +14,27 @@ func TestNextToken(t *testing.T) {
 		expectedType    word.WordType
 		expectedLiteral string
 	}{
-		{word.PUSH, "5"},
-		{word.PUSH, "-10"},
+		{word.INT, "5"},
+		{word.INT, "-10"},
 		{word.ADD, "+"},
-		{word.PUSH, "1"},
+		{word.INT, "1"},
 		{word.POP, "."},
-		{word.PUSH, "1"},
+		{word.INT, "1"},
 		{word.SUBTRACT, "-"},
-		{word.PUSH, "-1"},
+		{word.INT, "-1"},
 		{word.MULTIPLY, "*"},
-		{word.PUSH, "-6"},
+		{word.INT, "-6"},
 		{word.DIVIDE, "/"},
 		{word.DUP, "dup"},
 		{word.DROP, "drop"},
-		{word.PUSH, "2"},
+		{word.INT, "2"},
 		{word.SWAP, "swap"},
 		{word.OVER, "over"},
 		{word.SPIN, "spin"},
 		{word.POP, "."},
 		{word.POP, "."},
 		{word.POP, "."},
-		{word.PUSH, "97"},
+		{word.INT, "97"},
 		{word.EMIT, "emit"},
 	}
 
@@ -66,17 +66,39 @@ func TestNextTokenTable(t *testing.T) {
 	}
 	tests := []test{
 		{
+			name:       "true false",
+			dictionary: map[string][]word.Word{},
+			input:      `true false invert`,
+			output: []expected{
+				{
+					expectedType:       word.TRUE,
+					expectedLiteral:    "true",
+					expectedDictionary: map[string][]word.Word{},
+				},
+				{
+					expectedType:       word.FALSE,
+					expectedLiteral:    "false",
+					expectedDictionary: map[string][]word.Word{},
+				},
+				{
+					expectedType:       word.INVERT,
+					expectedLiteral:    "invert",
+					expectedDictionary: map[string][]word.Word{},
+				},
+			},
+		},
+		{
 			name:       "mod",
 			dictionary: map[string][]word.Word{},
 			input:      `5 5 mod`,
 			output: []expected{
 				{
-					expectedType:       word.PUSH,
+					expectedType:       word.INT,
 					expectedLiteral:    "5",
 					expectedDictionary: map[string][]word.Word{},
 				},
 				{
-					expectedType:       word.PUSH,
+					expectedType:       word.INT,
 					expectedLiteral:    "5",
 					expectedDictionary: map[string][]word.Word{},
 				},
@@ -93,12 +115,12 @@ func TestNextTokenTable(t *testing.T) {
 			dictionary: map[string][]word.Word{},
 			output: []expected{
 				{
-					expectedType:       word.PUSH,
+					expectedType:       word.INT,
 					expectedLiteral:    "5",
 					expectedDictionary: map[string][]word.Word{},
 				},
 				{
-					expectedType:       word.PUSH,
+					expectedType:       word.INT,
 					expectedLiteral:    "5",
 					expectedDictionary: map[string][]word.Word{},
 				},
@@ -115,7 +137,7 @@ func TestNextTokenTable(t *testing.T) {
 			dictionary: map[string][]word.Word{},
 			output: []expected{
 				{
-					expectedType:       word.PUSH,
+					expectedType:       word.INT,
 					expectedLiteral:    "420",
 					expectedDictionary: map[string][]word.Word{},
 				},
@@ -141,12 +163,12 @@ func TestNextTokenTable(t *testing.T) {
 			input:      `1 2 < -2 > -1 =`,
 			dictionary: map[string][]word.Word{},
 			output: []expected{
-				{word.PUSH, "1", map[string][]word.Word{}},
-				{word.PUSH, "2", map[string][]word.Word{}},
+				{word.INT, "1", map[string][]word.Word{}},
+				{word.INT, "2", map[string][]word.Word{}},
 				{word.LT, "<", map[string][]word.Word{}},
-				{word.PUSH, "-2", map[string][]word.Word{}},
+				{word.INT, "-2", map[string][]word.Word{}},
 				{word.GT, ">", map[string][]word.Word{}},
-				{word.PUSH, "-1", map[string][]word.Word{}},
+				{word.INT, "-1", map[string][]word.Word{}},
 				{word.EQ, "=", map[string][]word.Word{}},
 			},
 		},
@@ -155,8 +177,8 @@ func TestNextTokenTable(t *testing.T) {
 			input:      `10 12 and`,
 			dictionary: map[string][]word.Word{},
 			output: []expected{
-				{word.PUSH, "10", map[string][]word.Word{}},
-				{word.PUSH, "12", map[string][]word.Word{}},
+				{word.INT, "10", map[string][]word.Word{}},
+				{word.INT, "12", map[string][]word.Word{}},
 				{word.AND, "and", map[string][]word.Word{}},
 			},
 		},
@@ -165,8 +187,8 @@ func TestNextTokenTable(t *testing.T) {
 			input:      `10 12 or`,
 			dictionary: map[string][]word.Word{},
 			output: []expected{
-				{word.PUSH, "10", map[string][]word.Word{}},
-				{word.PUSH, "12", map[string][]word.Word{}},
+				{word.INT, "10", map[string][]word.Word{}},
+				{word.INT, "12", map[string][]word.Word{}},
 				{word.OR, "or", map[string][]word.Word{}},
 			},
 		},
@@ -175,7 +197,7 @@ func TestNextTokenTable(t *testing.T) {
 			input:      `1 invert`,
 			dictionary: map[string][]word.Word{},
 			output: []expected{
-				{word.PUSH, "1", map[string][]word.Word{}},
+				{word.INT, "1", map[string][]word.Word{}},
 				{word.INVERT, "invert", map[string][]word.Word{}},
 			},
 		},
@@ -222,7 +244,7 @@ func TestNextTokenTable(t *testing.T) {
 					expectedLiteral: ":",
 					expectedDictionary: map[string][]word.Word{
 						"half": []word.Word{
-							{word.PUSH, "2"},
+							{word.INT, "2"},
 							{word.SWAP, "swap"},
 							{word.DIVIDE, "/"},
 						},
@@ -236,7 +258,7 @@ func TestNextTokenTable(t *testing.T) {
 			dictionary: map[string][]word.Word{},
 			output: []expected{
 				{
-					expectedType:       word.PUSH,
+					expectedType:       word.INT,
 					expectedLiteral:    "1",
 					expectedDictionary: map[string][]word.Word{},
 				},
@@ -251,7 +273,7 @@ func TestNextTokenTable(t *testing.T) {
 					},
 				},
 				{
-					expectedType:    word.PUSH,
+					expectedType:    word.INT,
 					expectedLiteral: "10",
 					expectedDictionary: map[string][]word.Word{
 						"double": []word.Word{
@@ -282,12 +304,12 @@ func TestNextTokenTable(t *testing.T) {
 					expectedLiteral: ":",
 					expectedDictionary: map[string][]word.Word{
 						"buzz?": []word.Word{
-							{word.PUSH, "5"},
+							{word.INT, "5"},
 							{word.MOD, "mod"},
-							{word.PUSH, "0"},
+							{word.INT, "0"},
 							{word.EQ, "="},
 							{word.IF, "if"},
-							{word.PUSH, "2"},
+							{word.INT, "2"},
 							{word.THEN, "then"},
 						},
 					},
