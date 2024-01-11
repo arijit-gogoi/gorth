@@ -38,7 +38,7 @@ func TestNextToken(t *testing.T) {
 		{word.EMIT, "emit"},
 	}
 
-	l := New(input, map[string][]word.Word{})
+	l := New(input, map[word.Word][]word.Word{})
 	for i, tt := range output {
 		tok := l.NextToken()
 		t.Run("single", func(t *testing.T) {
@@ -56,161 +56,161 @@ func TestNextTokenTable(t *testing.T) {
 	type expected struct {
 		expectedType       word.WordType
 		expectedLiteral    string
-		expectedDictionary map[string][]word.Word
+		expectedDictionary map[word.Word][]word.Word
 	}
 	type test struct {
 		name       string
-		dictionary map[string][]word.Word
+		dictionary map[word.Word][]word.Word
 		input      string
 		output     []expected
 	}
 	tests := []test{
 		{
 			name:       "true false",
-			dictionary: map[string][]word.Word{},
+			dictionary: map[word.Word][]word.Word{},
 			input:      `true false invert`,
 			output: []expected{
 				{
 					expectedType:       word.TRUE,
 					expectedLiteral:    "true",
-					expectedDictionary: map[string][]word.Word{},
+					expectedDictionary: map[word.Word][]word.Word{},
 				},
 				{
 					expectedType:       word.FALSE,
 					expectedLiteral:    "false",
-					expectedDictionary: map[string][]word.Word{},
+					expectedDictionary: map[word.Word][]word.Word{},
 				},
 				{
 					expectedType:       word.INVERT,
 					expectedLiteral:    "invert",
-					expectedDictionary: map[string][]word.Word{},
+					expectedDictionary: map[word.Word][]word.Word{},
 				},
 			},
 		},
 		{
 			name:       "mod",
-			dictionary: map[string][]word.Word{},
+			dictionary: map[word.Word][]word.Word{},
 			input:      `5 5 mod`,
 			output: []expected{
 				{
 					expectedType:       word.INT,
 					expectedLiteral:    "5",
-					expectedDictionary: map[string][]word.Word{},
+					expectedDictionary: map[word.Word][]word.Word{},
 				},
 				{
 					expectedType:       word.INT,
 					expectedLiteral:    "5",
-					expectedDictionary: map[string][]word.Word{},
+					expectedDictionary: map[word.Word][]word.Word{},
 				},
 				{
 					expectedType:       word.MOD,
 					expectedLiteral:    "mod",
-					expectedDictionary: map[string][]word.Word{},
+					expectedDictionary: map[word.Word][]word.Word{},
 				},
 			},
 		},
 		{
 			name:       "%",
 			input:      `5 5 %`,
-			dictionary: map[string][]word.Word{},
+			dictionary: map[word.Word][]word.Word{},
 			output: []expected{
 				{
 					expectedType:       word.INT,
 					expectedLiteral:    "5",
-					expectedDictionary: map[string][]word.Word{},
+					expectedDictionary: map[word.Word][]word.Word{},
 				},
 				{
 					expectedType:       word.INT,
 					expectedLiteral:    "5",
-					expectedDictionary: map[string][]word.Word{},
+					expectedDictionary: map[word.Word][]word.Word{},
 				},
 				{
 					expectedType:       word.MOD,
 					expectedLiteral:    "%",
-					expectedDictionary: map[string][]word.Word{},
+					expectedDictionary: map[word.Word][]word.Word{},
 				},
 			},
 		},
 		{
 			name:       "dup a number",
 			input:      `420 dup`,
-			dictionary: map[string][]word.Word{},
+			dictionary: map[word.Word][]word.Word{},
 			output: []expected{
 				{
 					expectedType:       word.INT,
 					expectedLiteral:    "420",
-					expectedDictionary: map[string][]word.Word{},
+					expectedDictionary: map[word.Word][]word.Word{},
 				},
 				{
 					expectedType:       word.DUP,
 					expectedLiteral:    "dup",
-					expectedDictionary: map[string][]word.Word{},
+					expectedDictionary: map[word.Word][]word.Word{},
 				},
 			},
 		},
 		{
 			name:       "cr cr cr",
 			input:      `cr cr cr`,
-			dictionary: map[string][]word.Word{},
+			dictionary: map[word.Word][]word.Word{},
 			output: []expected{
-				{word.CR, "cr", map[string][]word.Word{}},
-				{word.CR, "cr", map[string][]word.Word{}},
-				{word.CR, "cr", map[string][]word.Word{}},
+				{word.CR, "cr", map[word.Word][]word.Word{}},
+				{word.CR, "cr", map[word.Word][]word.Word{}},
+				{word.CR, "cr", map[word.Word][]word.Word{}},
 			},
 		},
 		{
 			name:       "LT and GT",
 			input:      `1 2 < -2 > -1 =`,
-			dictionary: map[string][]word.Word{},
+			dictionary: map[word.Word][]word.Word{},
 			output: []expected{
-				{word.INT, "1", map[string][]word.Word{}},
-				{word.INT, "2", map[string][]word.Word{}},
-				{word.LT, "<", map[string][]word.Word{}},
-				{word.INT, "-2", map[string][]word.Word{}},
-				{word.GT, ">", map[string][]word.Word{}},
-				{word.INT, "-1", map[string][]word.Word{}},
-				{word.EQ, "=", map[string][]word.Word{}},
+				{word.INT, "1", map[word.Word][]word.Word{}},
+				{word.INT, "2", map[word.Word][]word.Word{}},
+				{word.LT, "<", map[word.Word][]word.Word{}},
+				{word.INT, "-2", map[word.Word][]word.Word{}},
+				{word.GT, ">", map[word.Word][]word.Word{}},
+				{word.INT, "-1", map[word.Word][]word.Word{}},
+				{word.EQ, "=", map[word.Word][]word.Word{}},
 			},
 		},
 		{
 			name:       "and",
 			input:      `10 12 and`,
-			dictionary: map[string][]word.Word{},
+			dictionary: map[word.Word][]word.Word{},
 			output: []expected{
-				{word.INT, "10", map[string][]word.Word{}},
-				{word.INT, "12", map[string][]word.Word{}},
-				{word.AND, "and", map[string][]word.Word{}},
+				{word.INT, "10", map[word.Word][]word.Word{}},
+				{word.INT, "12", map[word.Word][]word.Word{}},
+				{word.AND, "and", map[word.Word][]word.Word{}},
 			},
 		},
 		{
 			name:       "test or with two numbers",
 			input:      `10 12 or`,
-			dictionary: map[string][]word.Word{},
+			dictionary: map[word.Word][]word.Word{},
 			output: []expected{
-				{word.INT, "10", map[string][]word.Word{}},
-				{word.INT, "12", map[string][]word.Word{}},
-				{word.OR, "or", map[string][]word.Word{}},
+				{word.INT, "10", map[word.Word][]word.Word{}},
+				{word.INT, "12", map[word.Word][]word.Word{}},
+				{word.OR, "or", map[word.Word][]word.Word{}},
 			},
 		},
 		{
 			name:       "invert: bitwise not",
 			input:      `1 invert`,
-			dictionary: map[string][]word.Word{},
+			dictionary: map[word.Word][]word.Word{},
 			output: []expected{
-				{word.INT, "1", map[string][]word.Word{}},
-				{word.INVERT, "invert", map[string][]word.Word{}},
+				{word.INT, "1", map[word.Word][]word.Word{}},
+				{word.INVERT, "invert", map[word.Word][]word.Word{}},
 			},
 		},
 		{
 			name:       "udf: double",
 			input:      `: double dup + ;`,
-			dictionary: map[string][]word.Word{},
+			dictionary: map[word.Word][]word.Word{},
 			output: []expected{
 				{
 					expectedType:    word.DEFINE,
 					expectedLiteral: ":",
-					expectedDictionary: map[string][]word.Word{
-						"double": []word.Word{
+					expectedDictionary: map[word.Word][]word.Word{
+						word.Word{word.UDF, "double"}: []word.Word{
 							{word.DUP, "dup"},
 							{word.ADD, "+"},
 						},
@@ -221,13 +221,13 @@ func TestNextTokenTable(t *testing.T) {
 		{
 			name:       "udf: square",
 			input:      `: double dup * ;`,
-			dictionary: map[string][]word.Word{},
+			dictionary: map[word.Word][]word.Word{},
 			output: []expected{
 				{
 					expectedType:    word.DEFINE,
 					expectedLiteral: ":",
-					expectedDictionary: map[string][]word.Word{
-						"double": []word.Word{
+					expectedDictionary: map[word.Word][]word.Word{
+						word.Word{word.UDF, "double"}: []word.Word{
 							{word.DUP, "dup"}, {word.MULTIPLY, "*"},
 						},
 					},
@@ -237,13 +237,13 @@ func TestNextTokenTable(t *testing.T) {
 		{
 			name:       "udf: half",
 			input:      `: half 2 swap / ;`,
-			dictionary: map[string][]word.Word{},
+			dictionary: map[word.Word][]word.Word{},
 			output: []expected{
 				{
 					expectedType:    word.DEFINE,
 					expectedLiteral: ":",
-					expectedDictionary: map[string][]word.Word{
-						"half": []word.Word{
+					expectedDictionary: map[word.Word][]word.Word{
+						word.Word{word.UDF, "half"}: []word.Word{
 							{word.INT, "2"},
 							{word.SWAP, "swap"},
 							{word.DIVIDE, "/"},
@@ -255,18 +255,18 @@ func TestNextTokenTable(t *testing.T) {
 		{
 			name:       "udf: simple full sentence",
 			input:      `1 : double dup + ; 10 double`,
-			dictionary: map[string][]word.Word{},
+			dictionary: map[word.Word][]word.Word{},
 			output: []expected{
 				{
 					expectedType:       word.INT,
 					expectedLiteral:    "1",
-					expectedDictionary: map[string][]word.Word{},
+					expectedDictionary: map[word.Word][]word.Word{},
 				},
 				{
 					expectedType:    word.DEFINE,
 					expectedLiteral: ":",
-					expectedDictionary: map[string][]word.Word{
-						"double": []word.Word{
+					expectedDictionary: map[word.Word][]word.Word{
+						word.Word{word.UDF, "double"}: []word.Word{
 							{word.DUP, "dup"},
 							{word.ADD, "+"},
 						},
@@ -275,8 +275,8 @@ func TestNextTokenTable(t *testing.T) {
 				{
 					expectedType:    word.INT,
 					expectedLiteral: "10",
-					expectedDictionary: map[string][]word.Word{
-						"double": []word.Word{
+					expectedDictionary: map[word.Word][]word.Word{
+						word.Word{word.UDF, "double"}: []word.Word{
 							{word.DUP, "dup"},
 							{word.ADD, "+"},
 						},
@@ -285,8 +285,8 @@ func TestNextTokenTable(t *testing.T) {
 				{
 					expectedType:    word.UDF,
 					expectedLiteral: "double",
-					expectedDictionary: map[string][]word.Word{
-						"double": []word.Word{
+					expectedDictionary: map[word.Word][]word.Word{
+						word.Word{word.UDF, "double"}: []word.Word{
 							{word.DUP, "dup"},
 							{word.ADD, "+"},
 						},
@@ -297,13 +297,13 @@ func TestNextTokenTable(t *testing.T) {
 		{
 			name:       "udf if: push 2",
 			input:      `: buzz? 5 mod 0 = if 2 then ;`,
-			dictionary: map[string][]word.Word{},
+			dictionary: map[word.Word][]word.Word{},
 			output: []expected{
 				{
 					expectedType:    word.DEFINE,
 					expectedLiteral: ":",
-					expectedDictionary: map[string][]word.Word{
-						"buzz?": []word.Word{
+					expectedDictionary: map[word.Word][]word.Word{
+						word.Word{word.UDF, "buzz?"}: []word.Word{
 							{word.INT, "5"},
 							{word.MOD, "mod"},
 							{word.INT, "0"},
@@ -346,33 +346,33 @@ func TestNextTokenTable(t *testing.T) {
 func TestDefineWord(t *testing.T) {
 	type test struct {
 		name               string
-		dictionary         map[string][]word.Word
+		dictionary         map[word.Word][]word.Word
 		input              string
-		expectedDictionary map[string][]word.Word
+		expectedDictionary map[word.Word][]word.Word
 	}
 	tests := []test{
 		{
 			name:       "udf infinite loop",
 			input:      ": myudf",
-			dictionary: map[string][]word.Word{},
-			expectedDictionary: map[string][]word.Word{
-				"myudf": nil,
+			dictionary: map[word.Word][]word.Word{},
+			expectedDictionary: map[word.Word][]word.Word{
+				word.Word{word.UDF, "myudf"}: nil,
 			},
 		},
 		{
 			name:       "just a word, no defStack",
 			input:      ": myword ;",
-			dictionary: map[string][]word.Word{},
-			expectedDictionary: map[string][]word.Word{
-				"myword": nil,
+			dictionary: map[word.Word][]word.Word{},
+			expectedDictionary: map[word.Word][]word.Word{
+				word.Word{word.UDF, "myword"}: nil,
 			},
 		},
 		{
 			name:       "udf: double",
 			input:      ": double dup + ;",
-			dictionary: map[string][]word.Word{},
-			expectedDictionary: map[string][]word.Word{
-				"double": []word.Word{
+			dictionary: map[word.Word][]word.Word{},
+			expectedDictionary: map[word.Word][]word.Word{
+				word.Word{word.UDF, "double"}: []word.Word{
 					{word.DUP, "dup"},
 					{word.ADD, "+"},
 				},
@@ -381,9 +381,9 @@ func TestDefineWord(t *testing.T) {
 		{
 			name:       "udf: square",
 			input:      ": square dup * ;",
-			dictionary: map[string][]word.Word{},
-			expectedDictionary: map[string][]word.Word{
-				"square": []word.Word{
+			dictionary: map[word.Word][]word.Word{},
+			expectedDictionary: map[word.Word][]word.Word{
+				word.Word{word.UDF, "square"}: []word.Word{
 					{word.DUP, "dup"},
 					{word.MULTIPLY, "*"},
 				},
@@ -392,9 +392,9 @@ func TestDefineWord(t *testing.T) {
 		{
 			name:       "udf: the double UDF",
 			input:      `: double dup + ; 10 double`,
-			dictionary: map[string][]word.Word{},
-			expectedDictionary: map[string][]word.Word{
-				"double": []word.Word{
+			dictionary: map[word.Word][]word.Word{},
+			expectedDictionary: map[word.Word][]word.Word{
+				word.Word{word.UDF, "double"}: []word.Word{
 					{word.DUP, "dup"},
 					{word.ADD, "+"},
 				},
@@ -403,9 +403,9 @@ func TestDefineWord(t *testing.T) {
 		{
 			name:       "udf: full sentence",
 			input:      `: double dup + ; 10 double`,
-			dictionary: map[string][]word.Word{},
-			expectedDictionary: map[string][]word.Word{
-				"double": []word.Word{
+			dictionary: map[word.Word][]word.Word{},
+			expectedDictionary: map[word.Word][]word.Word{
+				word.Word{word.UDF, "double"}: []word.Word{
 					{word.DUP, "dup"},
 					{word.ADD, "+"},
 				},

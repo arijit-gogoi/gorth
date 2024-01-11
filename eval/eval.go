@@ -5,14 +5,16 @@ import (
 	"log"
 	"strconv"
 
+	"errors"
+
 	"github.com/Jorghy-Del/gorth/stack"
 	"github.com/Jorghy-Del/gorth/word"
 )
 
-func Execute(script []word.Word) []int {
+func Execute(tokens []word.Word) ([]int, error) {
 	var s stack.Stack
-	for _, w := range script {
-		switch w.Type {
+	for _, t := range tokens {
+		switch t.Type {
 		case word.TRUE:
 			s.Push(-1)
 		case word.FALSE:
@@ -25,25 +27,25 @@ func Execute(script []word.Word) []int {
 			s.Push(^s.Pop())
 		case word.EQ:
 			if s.Pop() == s.Pop() {
-				s.Push(word.TRUE)
+				s.Push(int(word.TRUE))
 			} else {
-				s.Push(word.FALSE)
+				s.Push(int(word.FALSE))
 			}
 		case word.LT:
 			v1 := s.Pop()
 			v2 := s.Pop()
 			if v2 < v1 {
-				s.Push(word.TRUE)
+				s.Push(int(word.TRUE))
 			} else {
-				s.Push(word.FALSE)
+				s.Push(int(word.FALSE))
 			}
 		case word.GT:
 			v1 := s.Pop()
 			v2 := s.Pop()
 			if v2 > v1 {
-				s.Push(word.TRUE)
+				s.Push(int(word.TRUE))
 			} else {
-				s.Push(word.FALSE)
+				s.Push(int(word.FALSE))
 			}
 		case word.ADD:
 			s.Push(s.Pop() + s.Pop())
@@ -86,16 +88,17 @@ func Execute(script []word.Word) []int {
 		case word.EOF:
 			fmt.Println()
 		case word.ILLEGAL:
-			fmt.Printf("%x of type %d is illegal.\n", w.Literal, w.Type)
+			fmt.Printf("%x of type %d is illegal.\n", t.Literal, t.Type)
 		case word.INT:
-			v, e := strconv.Atoi(w.Literal)
+			v, e := strconv.Atoi(t.Literal)
 			if e != nil {
 				log.Fatal(e)
 			}
 			s.Push(v)
 		default:
-			log.Fatalf("reached default %s (%T) has type %v\n", w.Literal, w.Literal, w.Type)
+			log.Fatalf("reached default %s (%T) has type %v\n", t.Literal, t.Literal, t.Type)
+			return s.Stk, errors.New("reached default.")
 		}
 	}
-	return s.Stk
+	return s.Stk, nil
 }

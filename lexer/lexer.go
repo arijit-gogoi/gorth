@@ -9,10 +9,10 @@ type Lexer struct {
 	ch           byte
 	position     int
 	readPosition int
-	Dictionary   map[string][]word.Word
+	Dictionary   map[word.Word][]word.Word
 }
 
-func New(input string, dictionary map[string][]word.Word) *Lexer {
+func New(input string, dictionary map[word.Word][]word.Word) *Lexer {
 	l := &Lexer{
 		input:      input,
 		Dictionary: dictionary,
@@ -92,7 +92,8 @@ func (l *Lexer) DefineWord() {
 		}
 		definitionStack = append(definitionStack, tok)
 	}
-	l.Dictionary[udf] = definitionStack
+	w := word.Word{Type: word.UDF, Literal: udf}
+	l.Dictionary[w] = definitionStack
 }
 
 func (l *Lexer) readString() string {

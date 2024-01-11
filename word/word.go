@@ -9,9 +9,9 @@ type Word struct {
 
 const (
 	// Boolean Operations
-	TRUE  = -1
-	FALSE = 0
-	EQ    = iota
+	TRUE  WordType = -1
+	FALSE WordType = 0
+	EQ    WordType = iota
 	NOTEQ
 	LT
 	GT
@@ -84,10 +84,10 @@ var Table = map[string]WordType{
 	"then":   THEN,
 }
 
-func GetWordType(s string, dictionary map[string][]Word) WordType {
+func GetWordType(s string, dictionary map[Word][]Word) WordType {
 	if wT, ok := Table[s]; ok {
 		return wT
-	} else if _, ok := dictionary[s]; ok {
+	} else if _, ok := dictionary[Word{Type: UDF, Literal: s}]; ok {
 		return UDF
 	}
 	return ILLEGAL
